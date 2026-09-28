@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>متجر عبايات الخولي | دار العبايات الحريمي الفاخرة</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        alexandria: ['Alexandria', 'sans-serif'],
+                        cairo: ['Cairo', 'sans-serif'],
+                        calligraphy: ['"Aref Ruqaa"', 'serif'],
+                    },
+                    colors: {
+                        kholy: {
+                            gold: '#D4AF37',
+                            'gold-dark': '#B8860B',
+                            dark: '#111827',
+                            black: '#000000',
+                            gray: '#f9fafb'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Alexandria', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .calligraphy-logo {
+            font-family: 'Aref Ruqaa', serif;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(212, 175, 55, 0.2);
+        }
+        /* Hide scrollbars for chips */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Mobile bottom safe area */
+        .pb-mobile-nav {
+            padding-bottom: 75px;
+        }
+    </style>
+</head>
+<body class="bg-[#F8F9FA] text-slate-800 antialiased pb-mobile-nav min-h-screen flex flex-col">
+
+    <!-- 1. Top Black Announcement Bar (مثل ستايل دار الجلابية تماماً) -->
+    <div id="topAnnouncementBar" class="bg-black text-[#FFD700] text-xs sm:text-sm font-bold py-2.5 px-4 text-center relative border-b border-amber-500/20 flex items-center justify-center tracking-wide">
+        <button onclick="dismissTopBar()" class="absolute left-3 text-slate-400 hover:text-white text-sm p-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <span class="mx-auto flex items-center gap-1.5 font-cairo">
+            <span>دار الخولي للعبايات الفاخرة • شحن وتوصيل لكافة المحافظات</span>
+            <span class="text-amber-400">✨</span>
+        </span>
+    </div>
+
+    <!-- 2. Main Mobile Header (شعار الخط العربي في المنتصف + بحث + قائمة) -->
+    <header class="sticky top-0 z-40 bg-white border-b border-slate-200/80 shadow-sm transition-all">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                
+                <!-- Right Side: Hamburger Menu Button -->
+                <div class="flex items-center">
+                    <button onclick="openSideDrawer()" class="p-2.5 text-slate-800 hover:text-amber-600 rounded-xl hover:bg-slate-50 transition-colors" title="القائمة">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Center: Gold Calligraphy Logo (دار الخولي للعبايات) -->
+                <div class="flex-1 text-center">
+                    <a href="/" class="inline-flex flex-col items-center justify-center group">
+                        <span class="calligraphy-logo text-2xl sm:text-3xl lg:text-4xl text-[#C59B27] font-bold tracking-wide group-hover:text-amber-600 transition-colors">
+                            دار الخــولي
+                        </span>
+                        <span class="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 -mt-1 font-semibold">
+                            للعبايات الحريمي الفاخرة
+                        </span>
+                    </a>
+                </div>
+
+                <!-- Left Side: Search & Cart Icons -->
+                <div class="flex items-center gap-1">
+                    <button onclick="toggleSearchBar()" class="p-2.5 text-slate-800 hover:text-amber-600 rounded-xl hover:bg-slate-50 transition-colors" title="بحث">
+                        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                    </button>
+                    <button onclick="openCartDrawer()" class="relative p-2.5 text-slate-800 hover:text-amber-600 rounded-xl hover:bg-slate-50 transition-colors" title="سلة المشتريات">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span id="cartCountBadge" class="absolute top-1 right-1 bg-black text-[#FFD700] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white">
+                            0
+                        </span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Expandable Search Box -->
+            <div id="searchBarContainer" class="hidden pb-3 pt-1 border-t border-slate-100 animate-fadeIn">
+                <div class="relative w-full">
+                    <input type="text" id="searchInput" placeholder="ابحثي عن عباية كتان، كريب صالونا، سواريه، بشت..." 
+                           class="w-full bg-slate-100 border border-slate-300 focus:border-amber-500 rounded-xl py-2.5 pr-10 pl-4 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20">
+                    <span class="absolute right-3.5 top-3 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute left-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. Subheader: Filter & Sort Bar (طِبق الأصل من الصورة: تصفية سوداء وترتيب) -->
+    <div class="sticky top-16 sm:top-20 z-30 bg-white border-b border-slate-200 px-4 py-2.5 shadow-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+            
+            <!-- Left: Black Filter Button (تصفية) -->
+            <button onclick="toggleFilterDrawer()" class="bg-black hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all shadow-sm">
+                <i class="fa-solid fa-filter text-[11px] text-amber-400"></i>
+                <span>تصفية</span>
+            </button>
+
+            <!-- Center: Active Category Name / Products Count -->
+            <div class="text-[11px] text-slate-500 font-semibold truncate hidden sm:block">
+                <span id="activeCategoryTitle">جميع العبايات</span> (<span id="productsCountText">12</span> موديل)
+            </div>
+
+            <!-- Right: Sort Control (ترتيب ⇅) -->
+            <div class="flex items-center gap-2">
+                <div class="relative inline-block text-right">
+                    <select id="sortBySelect" onchange="handleSortChange(this.value)" 
+                            class="appearance-none bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 text-xs font-bold rounded-lg py-2 pr-7 pl-6 focus:outline-none cursor-pointer">
+                        <option value="newest">ترتيب: الأحدث وصولاً</option>
+                        <option value="price_low">السعر: من الأقل للأعلى</option>
+                        <option value="price_high">السعر: من الأعلى للأقل</option>
+                        <option value="rating">الأعلى تقييماً</option>
+                    </select>
+                    <span class="absolute right-2.5 top-2.5 pointer-events-none text-slate-500 text-xs">
+                        <i class="fa-solid fa-arrow-down-up-across-line text-[11px]"></i>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Horizontal Scrollable Category Chips -->
+        <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar pt-2.5 pb-1 text-xs">
+            <button onclick="filterCategory('all')" data-cat="all" class="cat-chip active px-3.5 py-1.5 rounded-full font-bold whitespace-nowrap bg-black text-[#FFD700] shadow-sm transition-all">
+                الكل
+            </button>
+            <button onclick="filterCategory('عبايات خروج وكاجوال')" data-cat="عبايات خروج وكاجوال" class="cat-chip px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+                عبايات خروج وكاجوال
+            </button>
+            <button onclick="filterCategory('عبايات سواريه ومناسبات')" data-cat="عبايات سواريه ومناسبات" class="cat-chip px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+                سواريه ومناسبات
+            </button>
+            <button onclick="filterCategory('عبايات خليجي وبشت')" data-cat="عبايات خليجي وبشت" class="cat-chip px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+                خليجي وبشت كلوش
+            </button>
+            <button onclick="filterCategory('إسدالات واستقبال')" data-cat="إسدالات واستقبال" class="cat-chip px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+                عبايات استقبال وبيتي
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. Products Grid Section (عرض عمودين للموبايل مثل دار الجلابية بالضبط) -->
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-1 w-full">
+        
+        <!-- Filter notification (if search active) -->
+        <div id="filterStatus" class="hidden mb-3 py-2 px-3 bg-amber-50 border border-amber-200 rounded-xl text-xs flex items-center justify-between text-amber-900 font-medium">
+            <span id="filterStatusText">نتائج البحث</span>
+            <button onclick="resetFilters()" class="text-rose-600 font-bold hover:underline">إلغاء التصفية</button>
+        </div>
+
+        <!-- 2 Columns Grid for Mobile (grid-cols-2) and 3-4 on Desktop -->
+        <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+            <!-- Dynamically injected product cards -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16 px-4">
+            <div id="emptyStateIconBox" class="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-2xl mb-3 shadow-inner border border-amber-200">
+                <i id="emptyStateIcon" class="fa-solid fa-gem"></i>
+            </div>
+            <h3 id="emptyStateTitle" class="text-base font-bold text-slate-800">لا توجد عبايات مطابقة لبحثك</h3>
+            <p id="emptyStateDesc" class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">جربي البحث بنوع قماش آخر مثل كريب أو كتان</p>
+            <button id="emptyStateBtn" onclick="resetFilters()" class="mt-4 bg-black text-[#FFD700] hover:bg-slate-900 px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">
+                عرض كل العبايات
+            </button>
+        </div>
+
+    </main>
+
+    <!-- 5. Side Drawer Menu (طِبق الأصل من الصورة الأولى: متجر | تسجيل الدخول + قائمة كاملة) -->
+    <div id="sideDrawerBackdrop" onclick="closeSideDrawer()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden transition-opacity"></div>
+    <div id="sideDrawer" class="fixed top-0 right-0 bottom-0 w-[82%] max-w-sm bg-white z-50 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+        
+        <!-- Drawer Tabs Header (متجر | تسجيل الدخول) -->
+        <div class="grid grid-cols-2 text-center border-b border-slate-200 text-xs font-bold">
+            <button class="py-4 border-b-2 border-black text-black bg-white flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-store text-amber-600"></i>
+                <span>متجر</span>
+            </button>
+            <a href="/login" class="py-4 border-b-2 border-transparent text-slate-500 hover:text-black bg-slate-50 flex items-center justify-center gap-1.5 transition-colors">
+                <i class="fa-solid fa-user"></i>
+                <span>تسجيل الدخول</span>
+            </a>
+        </div>
+
+        <!-- Drawer Close Button Float -->
+        <button onclick="closeSideDrawer()" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <!-- Menu Links List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-1 text-xs sm:text-sm font-semibold text-slate-800 divide-y divide-slate-100">
+            
+            <a href="/" onclick="closeSideDrawer()" class="block py-3 hover:text-amber-600 transition-colors flex items-center justify-between">
+                <span>الرئيسية</span>
+                <i class="fa-solid fa-angle-left text-slate-300 text-xs"></i>
+            </a>
+
+            <!-- Dropdown categories -->
+            <div class="py-2">
+                <button onclick="toggleDrawerSubmenu()" class="w-full py-2 flex items-center justify-between text-right hover:text-amber-600">
+                    <span>كتالوج العبايات</span>
+                    <i id="submenuArrow" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+                </button>
+                <div id="drawerSubmenu" class="hidden pl-2 pr-3 py-1 space-y-2 text-xs text-slate-600 bg-slate-50 rounded-xl my-1">
+                    <a href="#" onclick="filterCategory('عبايات خروج وكاجوال'); closeSideDrawer(); return false;" class="block py-1.5 hover:text-black">عبايات خروج وكاجوال</a>
+                    <a href="#" onclick="filterCategory('عبايات سواريه ومناسبات'); closeSideDrawer(); return false;" class="block py-1.5 hover:text-black">عبايات سواريه ومناسبات</a>
+                    <a href="#" onclick="filterCategory('عبايات خليجي وبشت'); closeSideDrawer(); return false;" class="block py-1.5 hover:text-black">عبايات خليجي وبشت كلوش</a>
+                    <a href="#" onclick="filterCategory('إسدالات واستقبال'); closeSideDrawer(); return false;" class="block py-1.5 hover:text-black">عبايات استقبال وبيتي</a>
+                </div>
+            </div>
+
+            <a href="#" onclick="applySpecialDiscountFilter(); closeSideDrawer(); return false;" class="block py-3 text-rose-600 hover:text-rose-700 transition-colors flex items-center justify-between font-bold">
+                <span>خصومات خاصة (العروض) 🔥</span>
+                <i class="fa-solid fa-angle-left text-slate-300 text-xs"></i>
+            </a>
+
+            <a href="#" onclick="openSizeGuideModal(); closeSideDrawer(); return false;" class="block py-3 hover:text-amber-600 transition-colors flex items-center justify-between">
+                <span>جدول مقاسات العبايات (52 - 60)</span>
+                <i class="fa-solid fa-angle-left text-slate-300 text-xs"></i>
+            </a>
+
+            <a href="https://wa.me/201156989550?text=السلام%20عليكم%20استفسار%20بخصوص%20عبايات%20الخولي" target="_blank" class="block py-3 hover:text-amber-600 transition-colors flex items-center justify-between">
+                <span>اتصل بنا / تواصل واتساب</span>
+                <i class="fa-solid fa-angle-left text-slate-300 text-xs"></i>
+            </a>
+
+            <!-- Follow us section (مثل الصورة الأولى تماماً) -->
+            <div class="pt-6">
+                <span class="block text-xs font-bold text-slate-900 mb-3">تابعنا على:</span>
+                <div class="flex items-center gap-3">
+                    <a href="https://wa.me/201156989550?text=السلام%20عليكم%20يا%20دار%20الخولي" target="_blank" class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-lg hover:bg-emerald-600 hover:text-white transition-colors" title="واتساب">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center text-lg hover:bg-blue-600 hover:text-white transition-colors" title="فيسبوك">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center text-lg hover:bg-rose-600 hover:text-white transition-colors" title="إنستجرام">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer inside Drawer -->
+        <div class="p-4 bg-slate-50 border-t border-slate-200 text-center text-[11px] text-slate-400">
+            © 2026 دار الخولي للعبايات الحريمي
+        </div>
+
+    </div>
+
+    <!-- 6. Mobile Fixed Bottom Navigation Bar (شريط التطبيق السفلي 5 أيقونات مثل الصورة 2) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] md:hidden">
+        <div class="grid grid-cols-5 h-[64px] items-center text-center text-[10px] font-semibold text-slate-600">
+            
+            <!-- 1. الرئيسية -->
+            <a href="/" class="flex flex-col items-center justify-center h-full hover:text-amber-600 text-slate-900">
+                <i class="fa-solid fa-house text-base mb-1"></i>
+                <span>الرئيسية</span>
+            </a>
+
+            <!-- 2. متجر -->
+            <button onclick="filterCategory('all'); window.scrollTo({top: 100, behavior: 'smooth'});" class="flex flex-col items-center justify-center h-full hover:text-amber-600">
+                <i class="fa-solid fa-store text-base mb-1"></i>
+                <span>متجر</span>
+            </button>
+
+            <!-- 3. السلة -->
+            <button onclick="openCartDrawer()" class="flex flex-col items-center justify-center h-full hover:text-amber-600 relative">
+                <div class="relative">
+                    <i class="fa-solid fa-bag-shopping text-base mb-1"></i>
+                    <span id="bottomNavCartBadge" class="absolute -top-1 -right-2 bg-black text-[#FFD700] text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white">
+                        0
+                    </span>
+                </div>
+                <span>السلة</span>
+            </button>
+
+            <!-- 4. حسابي / دخول -->
+            <a href="/login" class="flex flex-col items-center justify-center h-full hover:text-amber-600">
+                <i class="fa-regular fa-user text-base mb-1"></i>
+                <span>حسابي</span>
+            </a>
+
+            <!-- 5. القائمة -->
+            <button onclick="openSideDrawer()" class="flex flex-col items-center justify-center h-full hover:text-amber-600">
+                <i class="fa-solid fa-bars text-base mb-1"></i>
+                <span>القائمة</span>
+            </button>
+
+        </div>
+    </nav>
+
+    <!-- 7. Quick View Modal (معاينة مقاس العباية وتفاصيل القماش) -->
+    <div id="quickViewModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/70 backdrop-blur-sm">
+        <div class="min-h-screen px-3 flex items-center justify-center py-6">
+            <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative border border-slate-100 animate-fadeIn">
+                
+                <button onclick="closeQuickView()" class="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <div class="flex flex-col">
+                    <div class="relative bg-slate-100 h-80 sm:h-96 w-full">
+                        <img id="modalImg" src="" alt="Abaya" class="w-full h-full object-cover object-top">
+                        <span id="modalBadge" class="absolute top-3 right-3 bg-black text-white text-[11px] font-bold px-3 py-1 rounded-md shadow"></span>
+                    </div>
+
+                    <div class="p-5 flex flex-col justify-between">
+                        <div>
+                            <span id="modalCategory" class="text-[11px] font-bold text-amber-600 uppercase"></span>
+                            <h3 id="modalTitle" class="text-lg sm:text-xl font-bold text-slate-900 mt-1 font-cairo"></h3>
+                            
+                            <div class="flex items-baseline gap-2.5 mt-2">
+                                <span id="modalPrice" class="text-xl font-black text-slate-900 font-mono"></span>
+                                <span id="modalOldPrice" class="text-xs text-slate-400 line-through font-mono"></span>
+                            </div>
+
+                            <p id="modalDescription" class="text-xs text-slate-600 mt-3 leading-relaxed"></p>
+
+                            <!-- Size Selector -->
+                            <div class="mt-4">
+                                <label class="block text-xs font-bold text-slate-800 mb-1.5">اختاري المقاس (طول العباية):</label>
+                                <div class="flex flex-wrap gap-2" id="modalSizesList"></div>
+                            </div>
+
+                            <!-- Color Selector -->
+                            <div class="mt-3">
+                                <label class="block text-xs font-bold text-slate-800 mb-1.5">اللون المتاح:</label>
+                                <div class="flex flex-wrap gap-2" id="modalColorsList"></div>
+                            </div>
+                        </div>
+
+                        <!-- Quantity and Add to Cart -->
+                        <div class="pt-4 mt-4 border-t border-slate-100 flex items-center gap-3">
+                            <div class="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+                                <button onclick="decrementModalQty()" class="px-3 py-2 text-slate-600 hover:bg-slate-200 font-bold text-xs">-</button>
+                                <span id="modalQty" class="px-3 py-2 font-mono font-bold text-xs text-slate-800">1</span>
+                                <button onclick="incrementModalQty()" class="px-3 py-2 text-slate-600 hover:bg-slate-200 font-bold text-xs">+</button>
+                            </div>
+                            <button onclick="addModalItemToCart()" class="flex-1 bg-black hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs transition-colors shadow">
+                                <i class="fa-solid fa-bag-shopping text-amber-400"></i>
+                                <span>إضافة للطلب</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Cart Slide-over Drawer -->
+    <div id="cartDrawerBackdrop" onclick="closeCartDrawer()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden transition-opacity"></div>
+    <div id="cartDrawer" class="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white z-50 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+        
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-amber-600"></i>
+                <h3 class="font-bold text-xs sm:text-sm text-slate-900">سلة مشتريات عبايات الخولي</h3>
+            </div>
+            <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="cartItemsList" class="flex-1 overflow-y-auto p-4 space-y-3 divide-y divide-slate-100"></div>
+
+        <div id="cartEmptyState" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div class="w-16 h-16 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-2xl mb-3">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">سلة العبايات فارغة</h4>
+            <p class="text-xs text-slate-400 mt-1">اختاري العباية المناسبة لكِ واضغطي إضافة للطلب</p>
+        </div>
+
+        <div id="cartFooter" class="p-4 border-t border-slate-200 bg-slate-50 space-y-3">
+            <div class="space-y-1.5 text-xs text-slate-600">
+                <div class="flex justify-between">
+                    <span>المجموع الفرعي:</span>
+                    <span id="cartSubtotal" class="font-mono font-bold text-slate-800">0 ج.م</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>الشحن لكافة المحافظات:</span>
+                    <span id="cartShipping" class="font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded text-[11px]">+ مصاريف الشحن</span>
+                </div>
+                <div class="flex justify-between text-sm font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                    <span>الإجمالي:</span>
+                    <span id="cartGrandTotal" class="font-mono text-base text-amber-600">0 ج.م</span>
+                </div>
+            </div>
+
+            <button onclick="openCheckoutModal()" class="w-full bg-black hover:bg-slate-800 text-[#FFD700] font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2 text-xs transition-all">
+                <span>تأكيد الطلب وتحديد العنوان</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 9. Checkout Modal (معاينة قبل الدفع) -->
+    <div id="checkoutModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/70 backdrop-blur-sm">
+        <div class="min-h-screen px-3 flex items-center justify-center py-6">
+            <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative border border-slate-100">
+                
+                <div class="p-5 bg-black text-white flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base font-cairo">بيانات توصيل العباية</h3>
+                        <p class="text-[11px] text-amber-300">معاينة العباية والتأكد من المقاس قبل الدفع</p>
+                    </div>
+                    <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <form id="checkoutForm" onsubmit="submitOrder(event)" class="p-5 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">الاسم بالكامل *</label>
+                        <input type="text" id="custName" required placeholder="مثال: ياسمين الخولي" 
+                               class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف المحمول (واتساب) *</label>
+                        <input type="tel" id="custPhone" required placeholder="01012345678" dir="ltr"
+                               class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-right font-mono focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المحافظة *</label>
+                        <select id="custCity" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                            <option value="">اختاري المحافظة</option>
+                            <option value="القاهرة">القاهرة</option>
+                            <option value="الجيزة">الجيزة</option>
+                            <option value="الإسكندرية">الإسكندرية</option>
+                            <option value="الدقهلية (المنصورة)">الدقهلية (المنصورة)</option>
+                            <option value="الغربية (طنطا)">الغربية (طنطا)</option>
+                            <option value="الشرقية (الزقازيق)">الشرقية (الزقازيق)</option>
+                            <option value="القليوبية">القليوبية</option>
+                            <option value="المنوفية">المنوفية</option>
+                            <option value="البحيرة">البحيرة</option>
+                            <option value="بورسعيد">بورسعيد</option>
+                            <option value="الإسماعيلية">الإسماعيلية</option>
+                            <option value="السويس">السويس</option>
+                            <option value="دمياط">دمياط</option>
+                            <option value="الفيوم">الفيوم</option>
+                            <option value="بني سويف">بني سويف</option>
+                            <option value="المنيا">المنيا</option>
+                            <option value="أسيوط">أسيوط</option>
+                            <option value="سوهاج">سوهاج</option>
+                            <option value="قنا والأقصر وأسوان">قنا والأقصر وأسوان</option>
+                            <option value="محافظة أخرى">محافظة أخرى</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">العنوان بالتفصيل *</label>
+                        <input type="text" id="custAddress" required placeholder="المنطقة، الشارع، رقم العمارة، علامة مميزة" 
+                               class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">طريقة الدفع</label>
+                        <div class="p-3 border border-amber-300 bg-amber-50/50 rounded-xl text-xs flex items-center justify-between font-bold text-slate-900">
+                            <span>الدفع عند الاستلام (معاينة العباية)</span>
+                            <i class="fa-solid fa-check text-emerald-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">المبلغ الإجمالي</span>
+                            <span id="checkoutFinalAmount" class="text-lg font-black text-amber-600 font-mono">0 ج.م</span>
+                        </div>
+                        <button type="submit" id="submitOrderBtn" class="bg-black hover:bg-slate-800 text-[#FFD700] font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-1.5 shadow">
+                            <span>تأكيد طلب العباية</span>
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. Order Success Modal -->
+    <div id="orderSuccessModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/75 backdrop-blur-sm">
+        <div class="min-h-screen px-4 flex items-center justify-center py-6">
+            <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative border border-amber-100">
+                <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-3xl mb-3">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-900 font-cairo">تم استلام طلبك بنجاح!</h3>
+                <p class="text-xs text-slate-500 mt-1">شكراً لاختيارك دار الخولي، سنتواصل معكِ عبر الواتساب لتأكيد الشحن.</p>
+                
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 my-4 text-right space-y-1.5 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">رقم الطلب:</span>
+                        <span id="successOrderNumber" class="font-mono font-bold text-slate-800"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">المبلغ الإجمالي:</span>
+                        <span id="successOrderTotal" class="font-mono font-bold text-amber-600"></span>
+                    </div>
+                </div>
+
+                <a id="whatsappConfirmBtn" href="#" target="_blank" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg mb-2.5 transition-all animate-pulse">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>تأكيد وإرسال الطلب عبر واتساب المحل 💬</span>
+                </a>
+
+                <button onclick="closeSuccessModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition-colors">
+                    متابعة التسوق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 11. Size Guide Modal -->
+    <div id="sizeGuideModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/70 backdrop-blur-sm">
+        <div class="min-h-screen px-4 flex items-center justify-center py-6">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 relative border border-slate-100 text-xs">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+                    <h3 class="font-bold text-sm text-slate-900 font-cairo">جدول مقاسات العبايات الحريمي</h3>
+                    <button onclick="closeSizeGuideModal()" class="text-slate-400 hover:text-slate-600 text-base">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <table class="w-full text-center border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 font-bold text-slate-700">
+                            <th class="p-2 border">المقاس</th>
+                            <th class="p-2 border">الطول التقريبي</th>
+                            <th class="p-2 border">الوزن المناسب</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr><td class="p-2 font-mono font-bold border">52</td><td class="p-2 border">150 - 155 سم</td><td class="p-2 border">50 - 60 كجم</td></tr>
+                        <tr><td class="p-2 font-mono font-bold border">54</td><td class="p-2 border">156 - 160 سم</td><td class="p-2 border">60 - 70 كجم</td></tr>
+                        <tr><td class="p-2 font-mono font-bold border">56</td><td class="p-2 border">161 - 166 سم</td><td class="p-2 border">70 - 85 كجم</td></tr>
+                        <tr><td class="p-2 font-mono font-bold border">58</td><td class="p-2 border">167 - 172 سم</td><td class="p-2 border">85 - 100 كجم</td></tr>
+                        <tr><td class="p-2 font-mono font-bold border">60</td><td class="p-2 border">173 - 180 سم</td><td class="p-2 border">100+ كجم</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-[11px] text-slate-400 mt-3 text-center">المقاس يعتمد على طولك من الكتف حتى القدمين</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend Script Logic -->
+    <script>
+        let allProducts = [];
+        let filteredProducts = [];
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let currentSort = 'newest';
+        
+        let cart = JSON.parse(localStorage.getItem('kholy_cart') || '[]');
+
+        let currentQuickViewProduct = null;
+        let selectedSize = '';
+        let selectedColor = '';
+        let selectedQty = 1;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchProducts();
+            updateCartBadges();
+
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    handleSearch(e.target.value);
+                    const clearBtn = document.getElementById('clearSearchBtn');
+                    if (clearBtn) clearBtn.classList.toggle('hidden', !e.target.value);
+                });
+            }
+        });
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+                applyFilters();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function applyFilters() {
+            filteredProducts = allProducts.filter(p => {
+                const matchesCat = (activeCategory === 'all') || (p.category === activeCategory);
+                const matchesSearch = !searchQuery || 
+                    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+                return matchesCat && matchesSearch;
+            });
+
+            if (currentSort === 'price_low') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (currentSort === 'price_high') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            } else if (currentSort === 'rating') {
+                filteredProducts.sort((a, b) => b.rating - a.rating);
+            } else {
+                filteredProducts.sort((a, b) => b.id - a.id);
+            }
+
+            renderProducts();
+            document.getElementById('productsCountText').innerText = filteredProducts.length;
+        }
+
+        // Render 2 columns on mobile matching screenshot
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const empty = document.getElementById('emptyState');
+
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+
+                const titleEl = document.getElementById('emptyStateTitle');
+                const descEl = document.getElementById('emptyStateDesc');
+                const btnEl = document.getElementById('emptyStateBtn');
+                const iconEl = document.getElementById('emptyStateIcon');
+
+                if (allProducts.length === 0) {
+                    if (iconEl) iconEl.className = 'fa-solid fa-gem text-amber-500';
+                    if (titleEl) titleEl.innerText = 'تشكيلة 2026 قادمة قريباً في دار الخولي ✨';
+                    if (descEl) descEl.innerText = 'المتجر مهيأ ومستعد لإضافة العبايات والموديلات الجديدة الآن من لوحة التحكم.';
+                    if (btnEl) {
+                        btnEl.innerText = 'دخول لوحة التحكم لإضافة عباية';
+                        btnEl.onclick = () => window.location.href = '/login';
+                    }
+                } else {
+                    if (iconEl) iconEl.className = 'fa-solid fa-magnifying-glass text-slate-400';
+                    if (titleEl) titleEl.innerText = 'لا توجد عبايات مطابقة لبحثك';
+                    if (descEl) descEl.innerText = 'جربي البحث بنوع قماش آخر مثل كريب أو كتان أو عرض كل الأقسام.';
+                    if (btnEl) {
+                        btnEl.innerText = 'عرض كل العبايات';
+                        btnEl.onclick = resetFilters;
+                    }
+                }
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.innerHTML = filteredProducts.map(p => {
+                const discountPercent = p.old_price ? Math.round(((p.old_price - p.price) / p.old_price) * 100) : 0;
+
+                return `
+                <div onclick="openQuickView(${p.id})" class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col cursor-pointer group">
+                    
+                    <!-- Product Image Container -->
+                    <div class="relative aspect-[3/4] overflow-hidden bg-slate-100">
+                        <img src="${p.image}" alt="${p.name}" 
+                             class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        
+                        <!-- Black 'خصم' Badge (مطابق للصورة) -->
+                        ${discountPercent > 0 || p.badge ? `
+                            <span class="absolute top-2.5 right-2.5 bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
+                                ${p.badge || 'خصم'}
+                            </span>
+                        ` : ''}
+                    </div>
+
+                    <!-- Details Area -->
+                    <div class="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-xs sm:text-sm line-clamp-1 group-hover:text-amber-600 transition-colors" title="${p.name}">
+                                ${p.name}
+                            </h3>
+                            
+                            <!-- Rating Stars (مثل الصورة: 0/5 لا توجد تقييمات أو 5/5) -->
+                            <div class="flex items-center gap-1.5 mt-1.5 text-[10px] text-slate-400">
+                                <span>5/0</span>
+                                <div class="flex text-slate-300 text-[9px]">
+                                    <i class="fa-solid fa-star text-amber-400"></i>
+                                    <i class="fa-solid fa-star text-amber-400"></i>
+                                    <i class="fa-solid fa-star text-amber-400"></i>
+                                    <i class="fa-solid fa-star text-amber-400"></i>
+                                    <i class="fa-solid fa-star text-amber-400"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price display (ج.م) -->
+                        <div class="pt-2 mt-2 flex items-baseline gap-2">
+                            <span class="text-sm sm:text-base font-extrabold text-slate-900 font-mono">${p.price} <small class="text-[10px] font-sans font-bold">ج.م</small></span>
+                            ${p.old_price ? `<span class="text-[11px] text-slate-400 line-through font-mono">${p.old_price} ج.م</span>` : ''}
+                        </div>
+
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-chip').forEach(btn => {
+                if (btn.getAttribute('data-cat') === cat) {
+                    btn.classList.add('bg-black', 'text-[#FFD700]', 'shadow-sm');
+                    btn.classList.remove('bg-slate-100', 'text-slate-700');
+                } else {
+                    btn.classList.remove('bg-black', 'text-[#FFD700]', 'shadow-sm');
+                    btn.classList.add('bg-slate-100', 'text-slate-700');
+                }
+            });
+            document.getElementById('activeCategoryTitle').innerText = (cat === 'all') ? 'جميع العبايات' : cat;
+            applyFilters();
+        }
+
+        function applySpecialDiscountFilter() {
+            activeCategory = 'all';
+            filteredProducts = allProducts.filter(p => p.old_price && p.old_price > p.price);
+            renderProducts();
+            document.getElementById('productsCountText').innerText = filteredProducts.length;
+            document.getElementById('activeCategoryTitle').innerText = 'العروض والخصومات الخاصة';
+        }
+
+        function handleSearch(val) {
+            searchQuery = val.trim();
+            applyFilters();
+            const statusDiv = document.getElementById('filterStatus');
+            const statusText = document.getElementById('filterStatusText');
+            if (searchQuery) {
+                statusDiv.classList.remove('hidden');
+                statusText.innerText = `نتائج البحث عن: "${searchQuery}"`;
+            } else {
+                statusDiv.classList.add('hidden');
+            }
+        }
+
+        function clearSearch() {
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            handleSearch('');
+        }
+
+        function handleSortChange(sortVal) {
+            currentSort = sortVal;
+            applyFilters();
+        }
+
+        function resetFilters() {
+            searchQuery = '';
+            const input = document.getElementById('searchInput');
+            if (input) input.value = '';
+            document.getElementById('filterStatus').classList.add('hidden');
+            filterCategory('all');
+        }
+
+        function toggleSearchBar() {
+            const container = document.getElementById('searchBarContainer');
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                document.getElementById('searchInput').focus();
+            }
+        }
+
+        function dismissTopBar() {
+            document.getElementById('topAnnouncementBar').style.display = 'none';
+        }
+
+        // ================= CART =================
+
+        function saveCart() {
+            localStorage.setItem('kholy_cart', JSON.stringify(cart));
+            updateCartBadges();
+            renderCartDrawer();
+        }
+
+        function updateCartBadges() {
+            const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCountBadge').innerText = totalQty;
+            const bottomBadge = document.getElementById('bottomNavCartBadge');
+            if (bottomBadge) bottomBadge.innerText = totalQty;
+        }
+
+        function renderCartDrawer() {
+            const container = document.getElementById('cartItemsList');
+            const emptyState = document.getElementById('cartEmptyState');
+            const footer = document.getElementById('cartFooter');
+
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                footer.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            footer.classList.remove('hidden');
+
+            container.innerHTML = cart.map(item => `
+                <div class="flex items-center gap-3 pt-2">
+                    <img src="${item.image}" alt="${item.name}" class="w-14 h-18 object-cover object-top rounded-xl border border-slate-200 shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-xs text-slate-900 truncate">${item.name}</h4>
+                        <div class="text-[10px] text-slate-500 mt-0.5">مقاس: ${item.size} | ${item.color}</div>
+                        <div class="text-xs font-mono font-bold text-amber-600 mt-1">${item.price} ج.م</div>
+                    </div>
+                    <div class="flex flex-col items-end gap-1.5">
+                        <button onclick="removeFromCart('${item.cartKey}')" class="text-slate-400 hover:text-rose-500 text-xs">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                        <div class="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-slate-50 text-[10px]">
+                            <button onclick="updateQty('${item.cartKey}', -1)" class="px-2 py-0.5">-</button>
+                            <span class="px-2 font-mono font-bold">${item.quantity}</span>
+                            <button onclick="updateQty('${item.cartKey}', 1)" class="px-2 py-0.5">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cartSubtotal').innerText = `${subtotal.toFixed(0)} ج.م`;
+            document.getElementById('cartShipping').innerText = '+ مصاريف الشحن';
+            document.getElementById('cartGrandTotal').innerText = `${subtotal.toFixed(0)} ج.م (+ الشحن)`;
+        }
+
+        function updateQty(cartKey, delta) {
+            const index = cart.findIndex(i => i.cartKey === cartKey);
+            if (index > -1) {
+                cart[index].quantity += delta;
+                if (cart[index].quantity <= 0) cart.splice(index, 1);
+                saveCart();
+            }
+        }
+
+        function removeFromCart(cartKey) {
+            cart = cart.filter(i => i.cartKey !== cartKey);
+            saveCart();
+        }
+
+        function openCartDrawer() {
+            renderCartDrawer();
+            document.getElementById('cartDrawerBackdrop').classList.remove('hidden');
+            document.getElementById('cartDrawer').classList.remove('translate-x-full');
+        }
+
+        function closeCartDrawer() {
+            document.getElementById('cartDrawerBackdrop').classList.add('hidden');
+            document.getElementById('cartDrawer').classList.add('translate-x-full');
+        }
+
+        // ================= DRAWER MENU =================
+
+        function openSideDrawer() {
+            document.getElementById('sideDrawerBackdrop').classList.remove('hidden');
+            document.getElementById('sideDrawer').classList.remove('translate-x-full');
+        }
+
+        function closeSideDrawer() {
+            document.getElementById('sideDrawerBackdrop').classList.add('hidden');
+            document.getElementById('sideDrawer').classList.add('translate-x-full');
+        }
+
+        function toggleDrawerSubmenu() {
+            const sub = document.getElementById('drawerSubmenu');
+            const arrow = document.getElementById('submenuArrow');
+            sub.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+
+        function toggleFilterDrawer() {
+            openSideDrawer();
+            toggleDrawerSubmenu();
+        }
+
+        // ================= QUICK VIEW =================
+
+        function openQuickView(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            currentQuickViewProduct = product;
+            selectedQty = 1;
+
+            document.getElementById('modalImg').src = product.image;
+            document.getElementById('modalTitle').innerText = product.name;
+            document.getElementById('modalCategory').innerText = product.category;
+            document.getElementById('modalPrice').innerText = `${product.price} ج.م`;
+            document.getElementById('modalOldPrice').innerText = product.old_price ? `${product.old_price} ج.م` : '';
+            document.getElementById('modalDescription').innerText = product.description || '';
+            document.getElementById('modalBadge').innerText = product.badge || 'جديد';
+            document.getElementById('modalQty').innerText = selectedQty;
+
+            const sizes = product.sizes ? product.sizes.split(',') : ['54', '56', '58'];
+            selectedSize = sizes[0].trim();
+            document.getElementById('modalSizesList').innerHTML = sizes.map(s => {
+                const clean = s.trim();
+                return `<button type="button" onclick="selectModalSize('${clean}')" class="size-btn px-3 py-1 border rounded-lg text-xs font-semibold ${clean === selectedSize ? 'bg-black text-[#FFD700] border-black' : 'bg-slate-50 border-slate-200 text-slate-700'}">${clean}</button>`;
+            }).join('');
+
+            const colors = product.colors ? product.colors.split(',') : ['أسود فاحم'];
+            selectedColor = colors[0].trim();
+            document.getElementById('modalColorsList').innerHTML = colors.map(c => {
+                const clean = c.trim();
+                return `<button type="button" onclick="selectModalColor('${clean}')" class="color-btn px-3 py-1 border rounded-lg text-xs font-semibold ${clean === selectedColor ? 'bg-black text-[#FFD700] border-black' : 'bg-slate-50 border-slate-200 text-slate-700'}">${clean}</button>`;
+            }).join('');
+
+            document.getElementById('quickViewModal').classList.remove('hidden');
+        }
+
+        function closeQuickView() {
+            document.getElementById('quickViewModal').classList.add('hidden');
+        }
+
+        function selectModalSize(s) {
+            selectedSize = s;
+            document.querySelectorAll('.size-btn').forEach(b => {
+                b.className = (b.innerText === s) 
+                    ? 'size-btn px-3 py-1 border rounded-lg text-xs font-semibold bg-black text-[#FFD700] border-black'
+                    : 'size-btn px-3 py-1 border rounded-lg text-xs font-semibold bg-slate-50 border-slate-200 text-slate-700';
+            });
+        }
+
+        function selectModalColor(c) {
+            selectedColor = c;
+            document.querySelectorAll('.color-btn').forEach(b => {
+                b.className = (b.innerText === c) 
+                    ? 'color-btn px-3 py-1 border rounded-lg text-xs font-semibold bg-black text-[#FFD700] border-black'
+                    : 'color-btn px-3 py-1 border rounded-lg text-xs font-semibold bg-slate-50 border-slate-200 text-slate-700';
+            });
+        }
+
+        function incrementModalQty() {
+            selectedQty++;
+            document.getElementById('modalQty').innerText = selectedQty;
+        }
+
+        function decrementModalQty() {
+            if (selectedQty > 1) {
+                selectedQty--;
+                document.getElementById('modalQty').innerText = selectedQty;
+            }
+        }
+
+        function addModalItemToCart() {
+            if (!currentQuickViewProduct) return;
+            const cartKey = `${currentQuickViewProduct.id}-${selectedSize}-${selectedColor}`;
+            const existingIndex = cart.findIndex(item => item.cartKey === cartKey);
+
+            if (existingIndex > -1) {
+                cart[existingIndex].quantity += selectedQty;
+            } else {
+                cart.push({
+                    cartKey: cartKey,
+                    id: currentQuickViewProduct.id,
+                    name: currentQuickViewProduct.name,
+                    price: currentQuickViewProduct.price,
+                    image: currentQuickViewProduct.image,
+                    size: selectedSize,
+                    color: selectedColor,
+                    quantity: selectedQty
+                });
+            }
+
+            saveCart();
+            closeQuickView();
+            openCartDrawer();
+        }
+
+        // ================= CHECKOUT =================
+
+        function openCheckoutModal() {
+            if (cart.length === 0) return;
+            closeCartDrawer();
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('checkoutFinalAmount').innerText = `${subtotal.toFixed(0)} ج.م (+ مصاريف الشحن)`;
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        async function submitOrder(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitOrderBtn');
+            btn.disabled = true;
+            btn.innerText = 'جاري الإرسال...';
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = subtotal;
+
+            const payload = {
+                customer_name: document.getElementById('custName').value.trim(),
+                customer_phone: document.getElementById('custPhone').value.trim(),
+                city: document.getElementById('custCity').value,
+                address: document.getElementById('custAddress').value.trim(),
+                payment_method: 'الدفع عند الاستلام (معاينة)',
+                subtotal: subtotal,
+                discount: 0,
+                shipping: 0,
+                total_amount: total,
+                items: cart
+            };
+
+            try {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    const orderItemsList = payload.items.map(i => `• ${i.name} (مقاس: ${i.size} | لون: ${i.color}) × ${i.quantity} قطعة`).join('\n');
+                    const waText = `السلام عليكم يا دار الخولي، أريد تأكيد طلب عباية:\n` +
+                                   `رقم الطلب: ${data.order_number}\n` +
+                                   `اسم المستلم: ${payload.customer_name}\n` +
+                                   `رقم الهاتف: ${payload.customer_phone}\n` +
+                                   `المحافظة: ${payload.city}\n` +
+                                   `العنوان بالتفصيل: ${payload.address}\n\n` +
+                                   `العبايات المطلوبة:\n${orderItemsList}\n\n` +
+                                   `المبلغ: ${total.toFixed(0)} ج.م (+ مصاريف الشحن عند المعاينة)`;
+                    
+                    const waUrl = `https://wa.me/201156989550?text=${encodeURIComponent(waText)}`;
+                    document.getElementById('whatsappConfirmBtn').href = waUrl;
+
+                    cart = [];
+                    saveCart();
+                    closeCheckoutModal();
+                    document.getElementById('successOrderNumber').innerText = data.order_number;
+                    document.getElementById('successOrderTotal').innerText = `${total.toFixed(0)} ج.م (+ مصاريف الشحن)`;
+                    document.getElementById('orderSuccessModal').classList.remove('hidden');
+
+                    // Auto open WhatsApp window
+                    setTimeout(() => {
+                        window.open(waUrl, '_blank');
+                    }, 800);
+                } else {
+                    Swal.fire('خطأ', data.error || 'تعذر إتمام الطلب', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>تأكيد طلب العباية</span> <i class="fa-solid fa-check"></i>';
+            }
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('orderSuccessModal').classList.add('hidden');
+        }
+
+        function openSizeGuideModal() {
+            document.getElementById('sizeGuideModal').classList.remove('hidden');
+        }
+
+        function closeSizeGuideModal() {
+            document.getElementById('sizeGuideModal').classList.add('hidden');
+        }
+    </script>
+
+    <!-- Floating WhatsApp Customer Service Button -->
+    <a href="https://wa.me/201156989550?text=السلام%20عليكم%20يا%20دار%20الخولي،%20عندي%20استفسار%20بخصوص%20العبايات" target="_blank" 
+       class="fixed bottom-20 left-4 z-40 bg-[#25D366] hover:bg-[#20ba59] text-white py-2.5 px-3.5 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold transition-all hover:scale-105 border-2 border-white">
+        <i class="fa-brands fa-whatsapp text-xl"></i>
+        <span>تواصل واتساب</span>
+    </a>
+</body>
+</html>

@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة وحسابات الشركاء | دار الخولي للعبايات (يوسف شعبان & بيبو)</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        alexandria: ['Alexandria', 'sans-serif'],
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Alexandria', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Admin Bar -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-bold text-xl flex items-center justify-center font-cairo shadow">
+                        <span>خ</span>
+                    </div>
+                    <div>
+                        <h1 class="text-base font-bold font-cairo leading-tight">لوحة إدارة وحسابات الشركاء</h1>
+                        <span class="text-amber-400 text-xs font-normal">دار الخولي للعبايات الحريمي | يوسف شعبان & بيبو</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="hidden md:flex items-center gap-2 bg-slate-800/90 px-3.5 py-1.5 rounded-xl border border-slate-700">
+                        <i class="fa-solid fa-handshake text-amber-400 text-xs"></i>
+                        <span class="text-xs text-slate-200">
+                            الشريكان: <strong class="text-amber-300 font-bold font-cairo">يوسف شعبان</strong> و <strong class="text-amber-300 font-bold font-cairo">بيبو</strong> (أرباح 50% - 50%)
+                        </span>
+                    </div>
+                    <a href="/" target="_blank" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all border border-slate-700">
+                        <i class="fa-solid fa-store"></i>
+                        <span>عرض المتجر</span>
+                    </a>
+                    <a href="/logout" class="inline-flex items-center gap-1.5 bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all border border-rose-500/30">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>تسجيل الخروج</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-7">
+        
+        <!-- Partner Financial Overview Cards (الدفتر المالي للشركاء) -->
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-amber-500 text-lg"></i>
+                    <h2 class="text-base font-bold text-slate-900 font-cairo">التقرير المالي وتوزيع أرباح الشركاء (يوسف شعبان & بيبو)</h2>
+                </div>
+                <button onclick="loadAllData()" class="text-xs text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm transition">
+                    <i class="fa-solid fa-rotate text-amber-600"></i>
+                    <span>تحديث الحسابات</span>
+                </button>
+            </div>
+
+            <!-- 5-Column Financial Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                
+                <!-- 1. Total Revenue -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 block">إجمالي المبيعات المحصلة</span>
+                            <h3 id="statSales" class="text-2xl font-extrabold text-slate-900 font-mono mt-1">0.00 ج.م</h3>
+                            <span class="text-[11px] text-amber-600 font-medium flex items-center gap-1 mt-1">
+                                <i class="fa-solid fa-bag-shopping"></i>
+                                <span>قيمة فواتير العبايات</span>
+                            </span>
+                        </div>
+                        <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shadow-inner">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Total Cost -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 block">إجمالي رأس المال والتكلفة</span>
+                            <h3 id="statCost" class="text-2xl font-extrabold text-slate-700 font-mono mt-1">0.00 ج.م</h3>
+                            <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1 mt-1">
+                                <i class="fa-solid fa-truck-ramp-box"></i>
+                                <span>سعر الشراء بالجملة</span>
+                            </span>
+                        </div>
+                        <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shadow-inner">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Net Profit -->
+                <div class="bg-gradient-to-br from-emerald-950 to-slate-900 text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-emerald-300 block">صافي الأرباح الكلية</span>
+                            <h3 id="statProfit" class="text-2xl font-extrabold text-emerald-400 font-mono mt-1">0.00 ج.م</h3>
+                            <span class="text-[11px] text-emerald-200 font-medium flex items-center gap-1 mt-1">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                                <span>هامش: <strong id="statMargin" class="font-bold text-white">0%</strong></span>
+                            </span>
+                        </div>
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-lg border border-emerald-500/30">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Youssef Shaaban Share -->
+                <div class="bg-gradient-to-br from-amber-600 to-amber-700 text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-amber-100 block">أرباح الشريك: <strong>يوسف شعبان</strong></span>
+                            <h3 id="statYoussefShare" class="text-2xl font-extrabold text-white font-mono mt-1">0.00 ج.م</h3>
+                            <span class="text-[11px] text-amber-200 font-medium flex items-center gap-1 mt-1">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                                <span>نصيب 50% من الأرباح</span>
+                            </span>
+                        </div>
+                        <div class="w-11 h-11 rounded-2xl bg-white/20 text-white flex items-center justify-center text-lg border border-white/20 font-bold font-cairo">
+                            <span>ي</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Bibo Share -->
+                <div class="bg-gradient-to-br from-amber-700 to-amber-800 text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-amber-100 block">أرباح الشريك: <strong>بيبو</strong></span>
+                            <h3 id="statBiboShare" class="text-2xl font-extrabold text-white font-mono mt-1">0.00 ج.م</h3>
+                            <span class="text-[11px] text-amber-200 font-medium flex items-center gap-1 mt-1">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                                <span>نصيب 50% من الأرباح</span>
+                            </span>
+                        </div>
+                        <div class="w-11 h-11 rounded-2xl bg-white/20 text-white flex items-center justify-center text-lg border border-white/20 font-bold font-cairo">
+                            <span>ب</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Operational mini strip -->
+            <div class="grid grid-cols-3 gap-3 mt-3">
+                <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                    <span class="text-[11px] text-slate-500 block">إجمالي الطلبات</span>
+                    <span id="statOrders" class="font-mono font-bold text-base text-slate-900">0</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                    <span class="text-[11px] text-amber-600 font-semibold block">طلبات شحن جديدة</span>
+                    <span id="statPending" class="font-mono font-bold text-base text-amber-600">0</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                    <span class="text-[11px] text-slate-500 block">موديلات العبايات المعروضة</span>
+                    <span id="statProducts" class="font-mono font-bold text-base text-slate-900">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Tabs Container -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            
+            <!-- Navigation Tabs Bar -->
+            <div class="border-b border-slate-200 flex items-center px-4 sm:px-6 bg-slate-50/60 overflow-x-auto gap-2">
+                <button onclick="switchTab('accounting')" id="tabBtnAccounting" class="py-4 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 border-slate-900 text-slate-900 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-calculator text-amber-600"></i>
+                    <span>دفتر تكلفة وأرباح العبايات</span>
+                    <span class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold">يوسف شعبان & بيبو</span>
+                </button>
+                <button onclick="switchTab('orders')" id="tabBtnOrders" class="py-4 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-boxes-packing"></i>
+                    <span>إدارة ومتابعة الطلبات</span>
+                    <span id="tabOrdersBadge" class="bg-slate-200 text-slate-700 text-[11px] px-2 py-0.5 rounded-full font-mono">0</span>
+                </button>
+                <button onclick="switchTab('products')" id="tabBtnProducts" class="py-4 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-tags"></i>
+                    <span>كتالوج الموديلات</span>
+                </button>
+                <button onclick="switchTab('addProduct')" id="tabBtnAddProduct" class="py-4 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-plus-circle text-emerald-600"></i>
+                    <span>إضافة عباية جديدة</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: دفتر تكلفة وأرباح العبايات (ACCOUNTING & MARGINS) -->
+            <div id="tabContentAccounting" class="p-4 sm:p-6">
+                
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 font-cairo flex items-center gap-2">
+                            <span>دفتر حسابات وهوامش ربح الموديلات</span>
+                            <span class="text-xs font-normal text-amber-700 font-semibold">(سعر الشراء • سعر البيع • مكسب يوسف شعبان • مكسب بيبو)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">اضغط على أيقونة القلم ✏️ لتعديل سعر الشراء من المصنع، وسيتم تحديث نصيب كل من يوسف وبيبو لحظياً.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <!-- Search -->
+                        <div class="relative">
+                            <input type="text" id="accountingSearchInput" oninput="filterAccountingTable()" placeholder="ابحث باسم الموديل..." 
+                                   class="bg-slate-50 border border-slate-300 rounded-xl pr-8 pl-3 py-2 text-xs focus:outline-none focus:border-amber-500 w-44 sm:w-56">
+                            <i class="fa-solid fa-magnifying-glass absolute right-2.5 top-2.5 text-slate-400 text-xs"></i>
+                        </div>
+
+                        <!-- Export CSV Button -->
+                        <button onclick="exportAccountingCSV()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-sm">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>تصدير شيت إكسل (يوسف وبيبو)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Accounting Table -->
+                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-900 text-white font-semibold">
+                            <tr>
+                                <th class="py-3.5 px-3">الصورة</th>
+                                <th class="py-3.5 px-3">اسم الموديل</th>
+                                <th class="py-3.5 px-3">القسم</th>
+                                <th class="py-3.5 px-3 bg-slate-800 text-amber-300">سعر الشراء (التكلفة)</th>
+                                <th class="py-3.5 px-3">سعر البيع للزبونة</th>
+                                <th class="py-3.5 px-3 bg-emerald-950 text-emerald-300">صافي المكسب</th>
+                                <th class="py-3.5 px-3 text-center">نسبة الربح %</th>
+                                <th class="py-3.5 px-3 bg-amber-950 text-amber-200">نصيب يوسف شعبان (50%)</th>
+                                <th class="py-3.5 px-3 bg-amber-900 text-amber-100">نصيب بيبو (50%)</th>
+                                <th class="py-3.5 px-3 text-center">تعديل التكلفة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accountingTableBody" class="divide-y divide-slate-100 bg-white">
+                            <!-- Populated by JS -->
+                        </tbody>
+                        <tfoot class="bg-slate-100 font-bold border-t-2 border-slate-300">
+                            <tr>
+                                <td colspan="3" class="py-3 px-3 text-slate-800 font-cairo">متوسط ومجموع العبايات المعروضة:</td>
+                                <td id="footTotalCost" class="py-3 px-3 font-mono text-slate-800">0 ج.م</td>
+                                <td id="footTotalPrice" class="py-3 px-3 font-mono text-slate-900">0 ج.م</td>
+                                <td id="footTotalProfit" class="py-3 px-3 font-mono text-emerald-700">0 ج.م</td>
+                                <td id="footAvgMargin" class="py-3 px-3 font-mono text-center text-slate-800">0%</td>
+                                <td id="footYoussefShare" class="py-3 px-3 font-mono text-amber-700">0 ج.م ليوسف</td>
+                                <td id="footBiboShare" class="py-3 px-3 font-mono text-amber-800">0 ج.م لبيبو</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- Tab 2: Orders List with Profit Breakdown -->
+            <div id="tabContentOrders" class="hidden p-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 font-cairo">سجل ومتابعة طلبات العبايات</h2>
+                        <p class="text-xs text-slate-500">يتضمن سعر البيع، تكلفة الشراء، صافي مكسب الأوردر، ونصيب كل من يوسف شعبان وبيبو.</p>
+                    </div>
+                    <button onclick="loadAdminOrders()" class="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 font-semibold">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>تحديث القائمة</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-3">رقم الطلب</th>
+                                <th class="py-3 px-3">العميلة</th>
+                                <th class="py-3 px-3">المحافظة</th>
+                                <th class="py-3 px-3">إجمالي البيع</th>
+                                <th class="py-3 px-3 text-slate-500">تكلفة البضاعة</th>
+                                <th class="py-3 px-3 text-emerald-700 font-bold">مكسب الطلب</th>
+                                <th class="py-3 px-3 text-amber-700 font-bold">نصيب يوسف (50%)</th>
+                                <th class="py-3 px-3 text-amber-800 font-bold">نصيب بيبو (50%)</th>
+                                <th class="py-3 px-3">حالة الطلب</th>
+                                <th class="py-3 px-3">التاريخ</th>
+                                <th class="py-3 px-3 text-center">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+
+                <div id="noOrdersMessage" class="hidden text-center py-12">
+                    <p class="text-slate-400">لا توجد طلبات جديدة حالياً.</p>
+                </div>
+            </div>
+
+            <!-- Tab 3: Products Catalog -->
+            <div id="tabContentProducts" class="hidden p-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 font-cairo">قائمة العبايات المعروضة بالمتجر</h2>
+                        <p class="text-xs text-slate-500">التحكم في الموديلات وتفاصيل العرض والأسعار العامة.</p>
+                    </div>
+                    <button onclick="switchTab('addProduct')" class="bg-slate-900 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all">
+                        + إضافة موديل عباية جديد
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">الصورة</th>
+                                <th class="py-3 px-4">اسم الموديل</th>
+                                <th class="py-3 px-4">القسم</th>
+                                <th class="py-3 px-4">سعر البيع</th>
+                                <th class="py-3 px-4">المقاسات</th>
+                                <th class="py-3 px-4">الشارة</th>
+                                <th class="py-3 px-4 text-center">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 4: Add Product Form with Cost Price Input -->
+            <div id="tabContentAddProduct" class="hidden p-4 sm:p-6 max-w-3xl">
+                <div class="mb-5 pb-3 border-b border-slate-200">
+                    <h2 class="text-base font-bold text-slate-900 font-cairo">إضافة موديل عباية جديد لمتجر دار الخولي</h2>
+                    <p class="text-xs text-slate-500">أدخل بيانات الموديل مع سعر الشراء (التكلفة) وسعر البيع لحساب أرباح الشريكين (يوسف وبيبو) تلقائياً.</p>
+                </div>
+                
+                <form id="addProductForm" onsubmit="submitNewProduct(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">اسم العباية / الموديل *</label>
+                            <input type="text" id="newProdName" required placeholder="مثال: عباية بشت ملكي مطرزة خيوط ذهب كريب سعودي" 
+                                   class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">القسم / التصنيف *</label>
+                            <select id="newProdCategory" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                                <option value="عبايات خروج وكاجوال">عبايات خروج وكاجوال</option>
+                                <option value="عبايات سواريه ومناسبات">عبايات سواريه ومناسبات</option>
+                                <option value="عبايات خليجي وبشت">عبايات خليجي وبشت</option>
+                                <option value="إسدالات واستقبال">إسدالات واستقبال</option>
+                                <option value="عبايات كتان وصيفي">عبايات كتان وصيفي</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">سعر الشراء / التكلفة بالجملة (ج.م) *</label>
+                            <input type="number" step="10" id="newProdCostPrice" required placeholder="مثال: 700" oninput="calcNewProductMargin()"
+                                   class="w-full bg-amber-50/50 border border-amber-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500 font-mono font-bold text-amber-900">
+                            <span class="text-[10px] text-amber-700 mt-1 block">سعر التكلفة من المصنع (مخفي عن الزبائن وخاص بالشريكين فقط)</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">سعر البيع للزبونة (ج.م) *</label>
+                            <input type="number" step="10" id="newProdPrice" required placeholder="مثال: 1250" oninput="calcNewProductMargin()"
+                                   class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500 font-mono font-bold text-slate-900">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">السعر قبل الخصم (اختياري)</label>
+                            <input type="number" step="10" id="newProdOldPrice" placeholder="مثال: 1500" 
+                                   class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500 font-mono">
+                        </div>
+
+                        <!-- Live profit calculation banner -->
+                        <div class="sm:col-span-2 bg-slate-900 text-white p-3.5 rounded-xl flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-calculator text-amber-400"></i>
+                                <span>حساب الربح المتوقع للقطعة:</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div>صافي المكسب: <span id="newProdCalcProfit" class="font-bold text-emerald-400 font-mono">0 ج.م</span></div>
+                                <div class="border-r border-slate-700 pr-4">نصيب يوسف شعبان: <span id="newProdCalcYoussef" class="font-bold text-amber-300 font-mono">0 ج.م</span></div>
+                                <div class="border-r border-slate-700 pr-4">نصيب بيبو: <span id="newProdCalcBibo" class="font-bold text-amber-300 font-mono">0 ج.م</span></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">شارة ترويجية (Badge)</label>
+                            <input type="text" id="newProdBadge" placeholder="مثال: الأكثر طلباً، تشكيلة 2026، كولكشن العيد" 
+                                   class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-xs font-semibold text-slate-700">صورة العباية (من الموبايل أو الكمبيوتر) *</label>
+                                <button type="button" onclick="toggleImageUrlMode()" id="btnToggleUrlMode" class="text-[11px] text-amber-600 hover:text-amber-700 font-semibold underline">
+                                    أو إدخال رابط صورة إنترنت
+                                </button>
+                            </div>
+
+                            <!-- Direct File Upload Box (Default) -->
+                            <div id="imageUploadBox" class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-2xl p-5 text-center bg-slate-50 transition cursor-pointer relative" onclick="triggerFileInput()">
+                                <input type="file" id="newProdFileInput" accept="image/*" class="hidden" onchange="handleImageFileSelected(event)">
+                                <input type="hidden" id="newProdImage" required>
+
+                                <!-- Placeholder state -->
+                                <div id="uploadPlaceholder" class="space-y-2">
+                                    <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl shadow-inner">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-800 block">اضغط هنا لاختيار صورة من جهازك / الكاميرا</span>
+                                        <span class="text-[11px] text-slate-500">يدعم صيغ JPG، PNG، WEBP مباشرة من الاستوديو أو الكاميرا</span>
+                                    </div>
+                                </div>
+
+                                <!-- Loading state -->
+                                <div id="uploadLoading" class="hidden py-4 text-center space-y-2">
+                                    <i class="fa-solid fa-spinner fa-spin text-2xl text-amber-600"></i>
+                                    <span class="text-xs font-bold text-slate-700 block">جاري رفع وحفظ صورة العباية...</span>
+                                </div>
+
+                                <!-- Preview state -->
+                                <div id="uploadPreview" class="hidden flex items-center justify-center gap-4">
+                                    <img id="previewImgElement" src="" class="w-20 h-24 object-cover object-top rounded-xl border-2 border-emerald-500 shadow-md">
+                                    <div class="text-right">
+                                        <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            <span>تم اختيار ورفع الصورة بنجاح</span>
+                                        </span>
+                                        <p id="previewImgName" class="text-[11px] text-slate-500 mt-1 max-w-[200px] truncate"></p>
+                                        <button type="button" onclick="event.stopPropagation(); triggerFileInput();" class="text-[11px] font-bold text-amber-600 hover:text-amber-700 underline mt-1 block">
+                                            تغيير الصورة
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Manual URL input (fallback) -->
+                            <div id="imageUrlBox" class="hidden mt-2">
+                                <input type="url" id="newProdImageUrlInput" placeholder="https://images.unsplash.com/..." 
+                                       class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500 font-mono" dir="ltr" oninput="handleManualUrlInput(this.value)">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">المقاسات المتاحة (مفصولة بفاصلة)</label>
+                            <input type="text" id="newProdSizes" value="52,54,56,58,60" placeholder="52,54,56,58,60" 
+                                   class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">الألوان المتاحة (مفصولة بفاصلة)</label>
+                            <input type="text" id="newProdColors" value="أسود سواد فاحم,كحلي داكن,زيتي فاخر" placeholder="أسود,كحلي,بترولي" 
+                                   class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">وصف العباية ونوع القماش</label>
+                            <textarea id="newProdDescription" rows="3" placeholder="نوع القماش (كريب صالونا، كريب كوري، حرير، مخمل) ونوع التطريز وقصة العباية وطرحة ليزر هدية..." 
+                                      class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex items-center gap-3">
+                        <button type="submit" id="saveProductBtn" class="bg-slate-900 hover:bg-amber-600 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md">
+                            حفظ ونشر العباية في المتجر
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Edit Product Cost Price -->
+    <div id="editCostModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+        <div class="min-h-screen px-4 flex items-center justify-center py-10">
+            <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl relative border border-slate-100">
+                
+                <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </div>
+                        <h3 class="font-bold text-sm">تعديل سعر الشراء / التكلفة</h3>
+                    </div>
+                    <button onclick="closeEditCostModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <img id="modalEditCostImg" src="" class="w-12 h-14 object-cover object-top rounded-lg border">
+                        <div>
+                            <h4 id="modalEditCostName" class="font-bold text-xs text-slate-900 leading-snug"></h4>
+                            <span class="text-[11px] text-slate-500">سعر البيع الحالي: <strong id="modalEditCostSellingPrice" class="text-slate-800 font-mono"></strong></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">سعر الشراء الجديد من المصنع (ج.م) *</label>
+                        <input type="number" step="10" id="modalEditCostInput" oninput="calcModalLivePreview()" 
+                               class="w-full bg-amber-50/70 border border-amber-300 rounded-xl p-3 text-sm font-mono font-bold text-amber-950 focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <div class="bg-slate-100 p-3 rounded-xl space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">المكسب الجديد للقطعة:</span>
+                            <span id="modalLiveProfit" class="font-bold font-mono text-emerald-600">0 ج.م</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">نسبة هامش الربح:</span>
+                            <span id="modalLiveMargin" class="font-bold font-mono text-slate-800">0%</span>
+                        </div>
+                        <div class="flex justify-between pt-1 border-t border-slate-200 font-bold text-amber-800">
+                            <span>نصيب يوسف شعبان (50%):</span>
+                            <span id="modalLiveShareYoussef" class="font-mono">0 ج.م</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-amber-800">
+                            <span>نصيب بيبو (50%):</span>
+                            <span id="modalLiveShareBibo" class="font-mono">0 ج.م</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-2">
+                        <button onclick="closeEditCostModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">
+                            إلغاء
+                        </button>
+                        <button onclick="saveProductCost()" id="btnSaveCost" class="px-6 py-2.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-amber-600 text-white transition shadow">
+                            حفظ وتحديث الحسابات
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderDetailsModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+        <div class="min-h-screen px-4 flex items-center justify-center py-10">
+            <div class="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl relative border border-slate-100">
+                
+                <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">تفاصيل طلب العباية: <span id="modalOrderNum" class="font-mono text-amber-600"></span></h3>
+                            <span id="modalOrderDate" class="text-[11px] text-slate-400"></span>
+                        </div>
+                    </div>
+                    <button onclick="closeOrderModal()" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="p-6 space-y-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-1">
+                        <div class="font-bold text-slate-800 text-sm mb-2">بيانات العميل وعنوان الشحن:</div>
+                        <div><strong class="text-slate-600">الاسم:</strong> <span id="modalCustName"></span></div>
+                        <div><strong class="text-slate-600">رقم الهاتف (واتساب):</strong> <span id="modalCustPhone" class="font-mono"></span></div>
+                        <div><strong class="text-slate-600">المحافظة:</strong> <span id="modalCustCity"></span></div>
+                        <div><strong class="text-slate-600">العنوان:</strong> <span id="modalCustAddress"></span></div>
+                        <div><strong class="text-slate-600">ملاحظات العميل:</strong> <span id="modalCustNotes" class="text-slate-500"></span></div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-800 mb-2">الموديلات المطلوبة وتحليل التكلفة:</h4>
+                        <div id="modalOrderItems" class="space-y-2 max-h-56 overflow-y-auto"></div>
+                    </div>
+
+                    <!-- Order financial breakdown with partner names -->
+                    <div class="border-t border-slate-200 pt-3 text-xs space-y-1.5">
+                        <div class="flex justify-between"><span>إجمالي البيع (الفاتورة):</span><span id="modalTotal" class="font-mono font-bold"></span></div>
+                        <div class="flex justify-between text-slate-500"><span>تكلفة البضاعة بالجملة:</span><span id="modalOrderCost" class="font-mono font-bold"></span></div>
+                        <div class="flex justify-between text-emerald-600 font-bold border-t border-slate-100 pt-1"><span>صافي المكسب المحقق:</span><span id="modalOrderProfit" class="font-mono"></span></div>
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <div class="bg-amber-50 p-2 rounded-lg font-bold text-amber-800 text-center">
+                                <span>نصيب يوسف شعبان (50%):</span>
+                                <span id="modalOrderYoussefShare" class="block font-mono text-sm mt-0.5"></span>
+                            </div>
+                            <div class="bg-amber-50 p-2 rounded-lg font-bold text-amber-800 text-center">
+                                <span>نصيب بيبو (50%):</span>
+                                <span id="modalOrderBiboShare" class="block font-mono text-sm mt-0.5"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin JS Logic -->
+    <script>
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        let adminOrders = [];
+        let adminProducts = [];
+        let editingProductId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+        });
+
+        async function loadAllData() {
+            await Promise.all([
+                loadStats(),
+                loadAdminOrders(),
+                loadAdminProducts()
+            ]);
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/admin/stats');
+                const data = await res.json();
+                document.getElementById('statSales').innerText = `${data.total_sales.toFixed(2)} ج.م`;
+                document.getElementById('statCost').innerText = `${data.total_cost.toFixed(2)} ج.م`;
+                document.getElementById('statProfit').innerText = `${data.net_profit.toFixed(2)} ج.م`;
+                document.getElementById('statMargin').innerText = `${data.profit_margin_pct}%`;
+                
+                const shareYoussef = data.youssef_share !== undefined ? data.youssef_share : data.partner_share;
+                const shareBibo = data.bibo_share !== undefined ? data.bibo_share : data.partner_share;
+                document.getElementById('statYoussefShare').innerText = `${shareYoussef.toFixed(2)} ج.م`;
+                document.getElementById('statBiboShare').innerText = `${shareBibo.toFixed(2)} ج.م`;
+                
+                document.getElementById('statOrders').innerText = data.total_orders;
+                document.getElementById('statPending').innerText = data.pending_orders;
+                document.getElementById('statProducts').innerText = data.total_products;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadAdminOrders() {
+            try {
+                const res = await fetch('/api/admin/orders');
+                adminOrders = await res.json();
+                renderAdminOrders();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderAdminOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            const noOrders = document.getElementById('noOrdersMessage');
+            document.getElementById('tabOrdersBadge').innerText = adminOrders.length;
+
+            if (adminOrders.length === 0) {
+                tbody.innerHTML = '';
+                noOrders.classList.remove('hidden');
+                return;
+            }
+
+            noOrders.classList.add('hidden');
+
+            const statusMap = {
+                'pending': { label: 'قيد المراجعة', class: 'bg-amber-100 text-amber-800' },
+                'processing': { label: 'جاري التجهيز', class: 'bg-blue-100 text-blue-800' },
+                'shipped': { label: 'تم الشحن', class: 'bg-purple-100 text-purple-800' },
+                'delivered': { label: 'تم التوصيل', class: 'bg-emerald-100 text-emerald-800' },
+                'cancelled': { label: 'ملغي', class: 'bg-rose-100 text-rose-800' }
+            };
+
+            tbody.innerHTML = adminOrders.map(order => {
+                const currentSt = statusMap[order.status] || { label: order.status, class: 'bg-slate-100 text-slate-800' };
+                const yShare = order.youssef_share !== undefined ? order.youssef_share : (order.partner_share || 0);
+                const bShare = order.bibo_share !== undefined ? order.bibo_share : (order.partner_share || 0);
+
+                return `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-3 font-mono font-bold text-slate-800">${escapeHtml(order.order_number)}</td>
+                    <td class="py-3 px-3 font-semibold text-slate-900">${escapeHtml(order.customer_name)}</td>
+                    <td class="py-3 px-3">
+                        <span class="block font-mono text-slate-600 text-[11px]">${escapeHtml(order.customer_phone)}</span>
+                        <span class="text-[11px] text-slate-400">${escapeHtml(order.city)}</span>
+                    </td>
+                    <td class="py-3 px-3 font-mono font-bold text-slate-900">${Number(order.total_amount).toFixed(2)} ج.م</td>
+                    <td class="py-3 px-3 font-mono text-slate-500">${Number(order.total_cost || 0).toFixed(2)} ج.م</td>
+                    <td class="py-3 px-3 font-mono font-bold text-emerald-600">+${Number(order.net_profit || 0).toFixed(2)} ج.م</td>
+                    <td class="py-3 px-3 font-mono font-bold text-amber-700 bg-amber-50/50">${Number(yShare).toFixed(2)} ج.م</td>
+                    <td class="py-3 px-3 font-mono font-bold text-amber-800 bg-amber-50/50">${Number(bShare).toFixed(2)} ج.م</td>
+                    <td class="py-3 px-3">
+                        <select onchange="updateOrderStatus(${order.id}, this.value)" class="text-[11px] font-semibold rounded-lg px-2 py-1 border border-slate-300 focus:outline-none ${currentSt.class}">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>قيد المراجعة</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>جاري التجهيز</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>تم الشحن</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>تم التوصيل</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>ملغي</option>
+                        </select>
+                    </td>
+                    <td class="py-3 px-3 text-slate-400 font-mono text-[11px]">${escapeHtml(order.created_at ? order.created_at.substring(0, 10) : '')}</td>
+                    <td class="py-3 px-3 text-center">
+                        <button onclick="viewOrderDetails(${order.id})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors">
+                            <i class="fa-solid fa-eye mr-1"></i> تفاصيل
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                const res = await fetch(`/api/admin/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-start',
+                        icon: 'success',
+                        title: 'تم تحديث حالة الطلب بنجاح',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    loadStats();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function viewOrderDetails(orderId) {
+            const order = adminOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            document.getElementById('modalOrderNum').innerText = order.order_number;
+            document.getElementById('modalOrderDate').innerText = order.created_at || '';
+            document.getElementById('modalCustName').innerText = order.customer_name;
+            document.getElementById('modalCustPhone').innerText = order.customer_phone;
+            document.getElementById('modalCustCity').innerText = order.city;
+            document.getElementById('modalCustAddress').innerText = order.address;
+            document.getElementById('modalCustNotes').innerText = order.notes || 'لا يوجد';
+
+            document.getElementById('modalTotal').innerText = `${order.total_amount} ج.م`;
+            document.getElementById('modalOrderCost').innerText = `${order.total_cost || 0} ج.م`;
+            document.getElementById('modalOrderProfit').innerText = `+${order.net_profit || 0} ج.م`;
+            
+            const yShare = order.youssef_share !== undefined ? order.youssef_share : (order.partner_share || 0);
+            const bShare = order.bibo_share !== undefined ? order.bibo_share : (order.partner_share || 0);
+            document.getElementById('modalOrderYoussefShare').innerText = `${yShare} ج.م`;
+            document.getElementById('modalOrderBiboShare').innerText = `${bShare} ج.م`;
+
+            const itemsContainer = document.getElementById('modalOrderItems');
+            itemsContainer.innerHTML = (order.items || []).map(item => `
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-100/70 border border-slate-200 text-xs">
+                    <div class="flex items-center gap-2.5">
+                        <img src="${escapeHtml(item.image)}" class="w-10 h-12 object-cover object-top rounded-lg border">
+                        <div>
+                            <span class="font-bold text-slate-800 block">${escapeHtml(item.name)}</span>
+                            <span class="text-[10px] text-slate-500">المقاس: ${escapeHtml(item.size)} | اللون: ${escapeHtml(item.color)} | الكمية: ${escapeHtml(item.quantity)}</span>
+                            <div class="text-[10px] text-slate-600 mt-0.5">
+                                <span>تكلفة الشراء: <strong>${Number(item.cost_price || 0).toFixed(0)} ج.م</strong></span> • 
+                                <span class="text-emerald-700 font-semibold">ربح القطعة: <strong>${(item.price - (item.cost_price || 0)).toFixed(0)} ج.م</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-left font-mono">
+                        <span class="font-bold text-slate-900 block">${(item.price * item.quantity).toFixed(0)} ج.م</span>
+                        <span class="text-[10px] text-emerald-600 font-semibold">+${(item.item_profit_total || 0).toFixed(0)} ج.م ربح</span>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('orderDetailsModal').classList.remove('hidden');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderDetailsModal').classList.add('hidden');
+        }
+
+        async function loadAdminProducts() {
+            try {
+                const res = await fetch('/api/admin/products');
+                adminProducts = await res.json();
+                renderAccountingTable();
+                renderAdminProducts();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderAccountingTable(filterList = null) {
+            const list = filterList !== null ? filterList : adminProducts;
+            const tbody = document.getElementById('accountingTableBody');
+
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="py-12 text-center text-slate-400 font-semibold text-xs"><i class="fa-solid fa-shirt text-2xl mb-2 text-slate-300 block"></i>لا توجد عبايات مسجلة حالياً. اضغط على زر "إضافة موديل جديد" بالأعلى للبدء.</td></tr>`;
+                document.getElementById('footTotalCost').innerText = '0 ج.م';
+                document.getElementById('footTotalPrice').innerText = '0 ج.م';
+                document.getElementById('footTotalProfit').innerText = '+0 ج.م';
+                document.getElementById('footAvgMargin').innerText = '0%';
+                document.getElementById('footYoussefShare').innerText = '0 ج.م ليوسف';
+                document.getElementById('footBiboShare').innerText = '0 ج.م لبيبو';
+                return;
+            }
+
+            let sumCost = 0;
+            let sumPrice = 0;
+            let sumProfit = 0;
+
+            tbody.innerHTML = list.map(p => {
+                const cost = Number(p.cost_price) || 0;
+                const price = Number(p.price) || 0;
+                const profit = price - cost;
+                const margin = price > 0 ? ((profit / price) * 100).toFixed(1) : 0;
+                const share = (profit / 2).toFixed(1);
+
+                sumCost += cost;
+                sumPrice += price;
+                sumProfit += profit;
+
+                return `
+                <tr class="hover:bg-amber-50/30 transition-colors">
+                    <td class="py-2.5 px-3">
+                        <img src="${p.image}" class="w-10 h-12 object-cover object-top rounded-lg border shadow-sm">
+                    </td>
+                    <td class="py-2.5 px-3 font-bold text-slate-900 max-w-[200px] truncate" title="${p.name}">
+                        ${p.name}
+                    </td>
+                    <td class="py-2.5 px-3 text-slate-600 text-[11px]">${p.category}</td>
+                    
+                    <!-- Cost Price -->
+                    <td class="py-2.5 px-3 font-mono font-bold text-slate-700 bg-slate-50">
+                        <span class="text-sm">${cost.toFixed(0)}</span> <span class="text-[10px] text-slate-400">ج.م</span>
+                    </td>
+                    
+                    <!-- Selling Price -->
+                    <td class="py-2.5 px-3 font-mono font-bold text-slate-900">
+                        <span class="text-sm">${price.toFixed(0)}</span> <span class="text-[10px] text-slate-400">ج.م</span>
+                    </td>
+                    
+                    <!-- Profit -->
+                    <td class="py-2.5 px-3 font-mono font-bold text-emerald-700 bg-emerald-50/50">
+                        <span class="text-sm">+${profit.toFixed(0)}</span> <span class="text-[10px] text-emerald-500">ج.م</span>
+                    </td>
+                    
+                    <!-- Margin % -->
+                    <td class="py-2.5 px-3 text-center">
+                        <span class="inline-block bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full font-mono">
+                            ${margin}%
+                        </span>
+                    </td>
+
+                    <!-- Youssef 50% split -->
+                    <td class="py-2.5 px-3 font-mono font-bold text-amber-800 bg-amber-50/50">
+                        <span class="text-sm">${share}</span> <span class="text-[10px] text-amber-600">ج.م</span>
+                    </td>
+
+                    <!-- Bibo 50% split -->
+                    <td class="py-2.5 px-3 font-mono font-bold text-amber-900 bg-amber-100/50">
+                        <span class="text-sm">${share}</span> <span class="text-[10px] text-amber-700">ج.م</span>
+                    </td>
+
+                    <!-- Edit button -->
+                    <td class="py-2.5 px-3 text-center">
+                        <button onclick="openEditCostModal(${p.id})" class="bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition flex items-center gap-1 mx-auto">
+                            <i class="fa-solid fa-pen text-[10px]"></i>
+                            <span>تعديل</span>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+
+            // Update footer totals
+            document.getElementById('footTotalCost').innerText = `${sumCost.toFixed(0)} ج.م`;
+            document.getElementById('footTotalPrice').innerText = `${sumPrice.toFixed(0)} ج.م`;
+            document.getElementById('footTotalProfit').innerText = `+${sumProfit.toFixed(0)} ج.م`;
+            const overallMargin = sumPrice > 0 ? ((sumProfit / sumPrice) * 100).toFixed(1) : 0;
+            document.getElementById('footAvgMargin').innerText = `${overallMargin}%`;
+            const halfProfit = (sumProfit / 2).toFixed(0);
+            document.getElementById('footYoussefShare').innerText = `${halfProfit} ج.م ليوسف`;
+            document.getElementById('footBiboShare').innerText = `${halfProfit} ج.م لبيبو`;
+        }
+
+        function filterAccountingTable() {
+            const query = document.getElementById('accountingSearchInput').value.trim().toLowerCase();
+            if (!query) {
+                renderAccountingTable();
+                return;
+            }
+            const filtered = adminProducts.filter(p => 
+                (p.name && p.name.toLowerCase().includes(query)) ||
+                (p.category && p.category.toLowerCase().includes(query))
+            );
+            renderAccountingTable(filtered);
+        }
+
+        function renderAdminProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            if (!adminProducts || adminProducts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-slate-400 font-semibold text-xs"><i class="fa-solid fa-shirt text-2xl mb-2 text-slate-300 block"></i>لا توجد موديلات حالياً. اضغط على "إضافة موديل جديد" بالأعلى لإضافة أول عباية.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = adminProducts.map(p => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-2 px-4">
+                        <img src="${p.image}" class="w-10 h-12 object-cover object-top rounded-lg border">
+                    </td>
+                    <td class="py-2 px-4 font-bold text-slate-900">${p.name}</td>
+                    <td class="py-2 px-4 text-slate-600">${p.category}</td>
+                    <td class="py-2 px-4 font-mono font-bold text-amber-600">${p.price} ج.م</td>
+                    <td class="py-2 px-4 text-slate-700">${p.sizes || '-'}</td>
+                    <td class="py-2 px-4">
+                        ${p.badge ? `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${p.badge}</span>` : '-'}
+                    </td>
+                    <td class="py-2 px-4 text-center">
+                        <button onclick="deleteProduct(${p.id})" class="text-rose-500 hover:text-rose-700 p-1">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openEditCostModal(productId) {
+            const product = adminProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            editingProductId = productId;
+            document.getElementById('modalEditCostImg').src = product.image;
+            document.getElementById('modalEditCostName').innerText = product.name;
+            document.getElementById('modalEditCostSellingPrice').innerText = `${product.price} ج.م`;
+            document.getElementById('modalEditCostInput').value = product.cost_price || 0;
+
+            calcModalLivePreview();
+            document.getElementById('editCostModal').classList.remove('hidden');
+        }
+
+        function closeEditCostModal() {
+            document.getElementById('editCostModal').classList.add('hidden');
+            editingProductId = null;
+        }
+
+        function calcModalLivePreview() {
+            const product = adminProducts.find(p => p.id === editingProductId);
+            if (!product) return;
+
+            const selling = Number(product.price) || 0;
+            const cost = Number(document.getElementById('modalEditCostInput').value) || 0;
+            const profit = selling - cost;
+            const margin = selling > 0 ? ((profit / selling) * 100).toFixed(1) : 0;
+            const share = (profit / 2).toFixed(1);
+
+            document.getElementById('modalLiveProfit').innerText = `${profit.toFixed(1)} ج.م`;
+            document.getElementById('modalLiveMargin').innerText = `${margin}%`;
+            document.getElementById('modalLiveShareYoussef').innerText = `${share} ج.م`;
+            document.getElementById('modalLiveShareBibo').innerText = `${share} ج.م`;
+        }
+
+        async function saveProductCost() {
+            if (!editingProductId) return;
+            const costVal = parseFloat(document.getElementById('modalEditCostInput').value);
+            if (isNaN(costVal) || costVal < 0) {
+                Swal.fire('تنبيه', 'يرجى إدخال سعر تكلفة صحيح', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btnSaveCost');
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`/api/admin/products/${editingProductId}/cost`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cost_price: costVal })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-start',
+                        icon: 'success',
+                        title: 'تم تحديث سعر الشراء بنجاح',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    closeEditCostModal();
+                    await loadAllData();
+                } else {
+                    Swal.fire('خطأ', data.error || 'حدث خطأ أثناء الحفظ', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function calcNewProductMargin() {
+            const cost = parseFloat(document.getElementById('newProdCostPrice').value) || 0;
+            const price = parseFloat(document.getElementById('newProdPrice').value) || 0;
+            const profit = price - cost;
+            const share = profit / 2;
+
+            document.getElementById('newProdCalcProfit').innerText = `${profit > 0 ? profit.toFixed(0) : 0} ج.م`;
+            document.getElementById('newProdCalcYoussef').innerText = `${share > 0 ? share.toFixed(0) : 0} ج.م`;
+            document.getElementById('newProdCalcBibo').innerText = `${share > 0 ? share.toFixed(0) : 0} ج.م`;
+        }
+
+        function triggerFileInput() {
+            document.getElementById('newProdFileInput').click();
+        }
+
+        function toggleImageUrlMode() {
+            const uploadBox = document.getElementById('imageUploadBox');
+            const urlBox = document.getElementById('imageUrlBox');
+            const btn = document.getElementById('btnToggleUrlMode');
+
+            if (urlBox.classList.contains('hidden')) {
+                urlBox.classList.remove('hidden');
+                uploadBox.classList.add('hidden');
+                btn.innerText = 'أو اختيار صورة من الجهاز';
+            } else {
+                urlBox.classList.add('hidden');
+                uploadBox.classList.remove('hidden');
+                btn.innerText = 'أو إدخال رابط صورة إنترنت';
+            }
+        }
+
+        function handleManualUrlInput(val) {
+            document.getElementById('newProdImage').value = val.trim();
+        }
+
+        async function handleImageFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const placeholder = document.getElementById('uploadPlaceholder');
+            const loading = document.getElementById('uploadLoading');
+            const preview = document.getElementById('uploadPreview');
+            const imgEl = document.getElementById('previewImgElement');
+            const imgNameEl = document.getElementById('previewImgName');
+            const hiddenInput = document.getElementById('newProdImage');
+
+            placeholder.classList.add('hidden');
+            preview.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const res = await fetch('/api/admin/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    hiddenInput.value = data.url;
+                    imgEl.src = data.url;
+                    imgNameEl.innerText = file.name;
+                    loading.classList.add('hidden');
+                    preview.classList.remove('hidden');
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-start',
+                        icon: 'success',
+                        title: 'تم رفع صورة العباية بنجاح!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    loading.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                    Swal.fire('خطأ في الرفع', data.error || 'فشل في رفع الصورة', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                loading.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                Swal.fire('خطأ', 'حدث خطأ في الاتصال أثناء رفع الصورة', 'error');
+            }
+        }
+
+        async function submitNewProduct(e) {
+            e.preventDefault();
+
+            const imageVal = document.getElementById('newProdImage').value.trim();
+            if (!imageVal) {
+                Swal.fire('تنبيه', 'يرجى اختيار صورة للعباية من جهازك أولاً', 'warning');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveProductBtn');
+            saveBtn.disabled = true;
+
+            const payload = {
+                name: document.getElementById('newProdName').value.trim(),
+                category: document.getElementById('newProdCategory').value,
+                cost_price: parseFloat(document.getElementById('newProdCostPrice').value) || 0,
+                price: parseFloat(document.getElementById('newProdPrice').value),
+                old_price: document.getElementById('newProdOldPrice').value ? parseFloat(document.getElementById('newProdOldPrice').value) : null,
+                badge: document.getElementById('newProdBadge').value.trim(),
+                image: imageVal,
+                sizes: document.getElementById('newProdSizes').value.trim(),
+                colors: document.getElementById('newProdColors').value.trim(),
+                description: document.getElementById('newProdDescription').value.trim(),
+                featured: 1
+            };
+
+            try {
+                const res = await fetch('/api/admin/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تمت إضافة العباية بنجاح!',
+                        text: 'الموديل معروض الآن وحسابات التكلفة والأرباح مسجلة بين يوسف وبيبو.',
+                        confirmButtonColor: '#0f172a'
+                    });
+                    document.getElementById('addProductForm').reset();
+                    document.getElementById('newProdImage').value = '';
+                    document.getElementById('uploadPlaceholder').classList.remove('hidden');
+                    document.getElementById('uploadPreview').classList.add('hidden');
+                    document.getElementById('uploadLoading').classList.add('hidden');
+                    document.getElementById('newProdCalcProfit').innerText = '0 ج.م';
+                    document.getElementById('newProdCalcYoussef').innerText = '0 ج.م';
+                    document.getElementById('newProdCalcBibo').innerText = '0 ج.م';
+                    await loadAllData();
+                    switchTab('accounting');
+                } else {
+                    Swal.fire('خطأ', data.error || 'حدث خطأ أثناء الحفظ', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                saveBtn.disabled = false;
+            }
+        }
+
+        async function deleteProduct(productId) {
+            const result = await Swal.fire({
+                title: 'هل تريد حذف هذا الموديل؟',
+                text: 'سيتم مسح العباية نهائياً من المتجر.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/api/admin/products/${productId}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        Swal.fire('تم الحذف!', 'تم مسح الموديل بنجاح.', 'success');
+                        await loadAllData();
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        function exportAccountingCSV() {
+            if (!adminProducts || adminProducts.length === 0) {
+                Swal.fire('تنبيه', 'لا توجد بيانات لتصديرها حالياً', 'info');
+                return;
+            }
+
+            // UTF-8 BOM so Arabic displays correctly in Excel
+            let csvContent = "\uFEFF";
+            csvContent += "الموديل,القسم,سعر الشراء (التكلفة),سعر البيع للزبونة,صافي المكسب في القطعة,نسبة هامش الربح %,نصيب يوسف شعبان (50%),نصيب بيبو (50%)\n";
+
+            adminProducts.forEach(p => {
+                const cost = Number(p.cost_price) || 0;
+                const price = Number(p.price) || 0;
+                const profit = price - cost;
+                const margin = price > 0 ? ((profit / price) * 100).toFixed(1) : 0;
+                const share = (profit / 2).toFixed(1);
+
+                const cleanName = `"${p.name.replace(/"/g, '""')}"`;
+                const cleanCat = `"${(p.category || '').replace(/"/g, '""')}"`;
+
+                csvContent += `${cleanName},${cleanCat},${cost},${price},${profit},${margin}%,${share},${share}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `دفتر_أرباح_الشريكين_يوسف_شعبان_وبيبو_${new Date().toISOString().substring(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function switchTab(tab) {
+            const tabs = ['accounting', 'orders', 'products', 'addProduct'];
+            tabs.forEach(t => {
+                const content = document.getElementById(`tabContent${capitalize(t)}`);
+                const btn = document.getElementById(`tabBtn${capitalize(t)}`);
+                if (t === tab) {
+                    content.classList.remove('hidden');
+                    btn.classList.add('border-slate-900', 'text-slate-900');
+                    btn.classList.remove('border-transparent', 'text-slate-500');
+                } else {
+                    content.classList.add('hidden');
+                    btn.classList.remove('border-slate-900', 'text-slate-900');
+                    btn.classList.add('border-transparent', 'text-slate-500');
+                }
+            });
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+</html>
