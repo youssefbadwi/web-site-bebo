@@ -883,12 +883,16 @@ def upload_image():
                 return jsonify({'success': True, 'url': public_url, 'filename': unique_name})
             except Exception as e:
                 print("Supabase storage upload error:", e)
-        ext = file.filename.rsplit('.', 1)[1].lower()
-        unique_name = f"abaya_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}.{ext}"
-        filepath = os.path.join(UPLOAD_FOLDER, unique_name)
-        file.save(filepath)
-        url = f"/static/uploads/products/{unique_name}"
-        return jsonify({'success': True, 'url': url, 'filename': unique_name})
+                return jsonify({'error': f'فشل رفع الصورة إلى التخزين السحابي: {str(e)}'}), 500
+        try:
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            unique_name = f"abaya_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}.{ext}"
+            filepath = os.path.join(UPLOAD_FOLDER, unique_name)
+            file.save(filepath)
+            url = f"/static/uploads/products/{unique_name}"
+            return jsonify({'success': True, 'url': url, 'filename': unique_name})
+        except Exception as e:
+            return jsonify({'error': f'تعذر حفظ الصورة: {str(e)}'}), 500
     return jsonify({'error': 'صيغة الصورة غير مدعومة. يرجى اختيار صورة بصيغة JPG أو PNG أو WEBP'}), 400
 
 @app.route('/api/admin/products', methods=['POST'])

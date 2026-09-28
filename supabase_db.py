@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://ouzxjghpplbplacycxrd.supabase.co')
-SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'sb_secret_3GQDwdWPA4XOtQV4BK7PcA_rcLdKUoD')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91enhqZ2hwcGxicGxhY3ljeHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyNTcyMjgsImV4cCI6MjEwNTgzMzIyOH0.KrbxWa2WuTrI-m_U3VFgU7XNwQ9PuVkY5lCIyE1OoKA')
 
 _client = None
 
@@ -211,7 +211,7 @@ def upload_image(file_obj, filename):
         'heic': 'image/heic'
     }
     content_type = mime_map.get(ext, 'image/jpeg')
-    
+    file_obj.seek(0)
     file_bytes = file_obj.read()
     client.storage.from_('products').upload(unique_name, file_bytes, file_options={'content-type': content_type})
     public_url = client.storage.from_('products').get_public_url(unique_name)
