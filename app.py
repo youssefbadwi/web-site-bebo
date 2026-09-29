@@ -39,6 +39,7 @@ DB_PATH = os.path.join(BASE_DIR, 'fashion_store.db')
 
 # Admin Credentials Hashed with Secure Salt (No plain-text passwords & removed weak default accounts)
 ADMIN_USERS_HASHED = {
+    'hareer': generate_password_hash('hareer2026'),
     'kholy': generate_password_hash('kholy2026'),
     'youssef': generate_password_hash('youssef2026'),
     'bibo': generate_password_hash('bibo2026')
@@ -47,6 +48,7 @@ ADMIN_USERS_HASHED = {
 PARTNER_NAMES = {
     'youssef': 'يوسف شعبان',
     'bibo': 'بيبو',
+    'hareer': 'يوسف شعبان وبيبو',
     'kholy': 'يوسف شعبان وبيبو'
 }
 
@@ -329,7 +331,7 @@ def init_db():
                 1890.0,
                 2400.0,
                 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80',
-                'تصميم حصري من دار الخولي، قماش كريب كافيار مرصع بخرز وفصوص كريستالية لامعة عاكسة للضوء على الأكتاف والظهر لحضور ملفت في حفلات الزفاف.',
+                'تصميم حصري من دار حرير للعبايات، قماش كريب كافيار مرصع بخرز وفصوص كريستالية لامعة عاكسة للضوء على الأكتاف والظهر لحضور ملفت في حفلات الزفاف.',
                 4.9,
                 22,
                 '54,56,58',
@@ -590,6 +592,42 @@ def get_categories():
     conn.close()
     return jsonify(categories)
 
+@app.route('/api/admin/categories', methods=['POST'])
+@admin_required
+def add_admin_category():
+    data = request.json or {}
+    name = html.escape(str(data.get('name', '')).strip()[:100])
+    icon = html.escape(str(data.get('icon', 'tag')).strip()[:50])
+    if not name:
+        return jsonify({'error': 'اسم القسم مطلوب'}), 400
+
+    if supabase_db.is_supabase_enabled():
+        res = supabase_db.add_category(name, icon=icon)
+        return jsonify({'success': True, 'category': res, 'message': 'تم إضافة القسم بنجاح'}), 201
+
+    conn = get_db()
+    cursor = conn.cursor()
+    slug_val = f"cat_{uuid.uuid4().hex[:6]}"
+    cursor.execute('INSERT INTO categories (name, slug, icon) VALUES (?, ?, ?)', (name, slug_val, icon))
+    conn.commit()
+    new_id = cursor.lastrowid
+    conn.close()
+    return jsonify({'success': True, 'category': {'id': new_id, 'name': name, 'slug': slug_val, 'icon': icon}, 'message': 'تم إضافة القسم بنجاح'}), 201
+
+@app.route('/api/admin/categories/<int:cat_id>', methods=['DELETE'])
+@admin_required
+def delete_admin_category(cat_id):
+    if supabase_db.is_supabase_enabled():
+        supabase_db.delete_category(cat_id)
+        return jsonify({'success': True, 'message': 'تم حذف القسم بنجاح'})
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM categories WHERE id = ?', (cat_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'message': 'تم حذف القسم بنجاح'})
+
 @app.route('/api/orders', methods=['POST'])
 def create_order():
     client_ip = get_client_ip()
@@ -693,7 +731,7 @@ def create_order():
     calculated_discount = 0.0
     final_total = round(calculated_subtotal - calculated_discount, 2)
 
-    order_num = f"KHOLY-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    order_num = f"HAREER-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     items_json = json.dumps(verified_items, ensure_ascii=False)
 
     if use_sb:
@@ -748,7 +786,7 @@ def create_order():
         'subtotal': calculated_subtotal,
         'shipping': calculated_shipping,
         'total_amount': final_total,
-        'message': 'تم استلام طلبك بنجاح وسيتواصل معك فريق خدمة عملاء عبايات الخولي قريباً لتأكيد الشحن!'
+        'message': 'تم استلام طلبك بنجاح وسيتواصل معك فريق خدمة عملاء دار حرير للعبايات قريباً لتأكيد الشحن!'
     }), 201
 
 # ----------------- PROTECTED ADMIN API -----------------
@@ -934,7 +972,8 @@ def add_product():
             'in_stock': int(data.get('in_stock', 1)),
             'featured': 1 if data.get('featured') else 0,
             'badge': html.escape(str(data.get('badge', '')).strip()[:50]),
-            'cost_price': cost_val
+            'cost_price': cost_val,
+            'merchant_name': html.escape(str(data.get('merchant_name', '')).strip()[:100])
         }
         res = supabase_db.add_product(new_prod)
         return jsonify({'success': True, 'id': res.get('id', 0), 'message': 'تم إضافة الموديل بنجاح'}), 201
@@ -1043,7 +1082,7 @@ def apply_security_headers(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     response.headers['Permissions-Policy'] = 'microphone=(), geolocation=()'
-    response.headers['Server'] = 'EL-KHOLY-SecureServer'
+    response.headers['Server'] = 'DAR-HAREER-SecureServer'
     return response
 
 @app.route('/api/index')
@@ -1071,5 +1110,5 @@ def server_error(e):
 
 if __name__ == '__main__':
     init_db()
-    print("El-Kholy Abayas Store server running on: http://127.0.0.1:5000")
+    print("Dar Hareer Abayas Store server running on: http://127.0.0.1:5000")
     app.run(host='0.0.0.0', debug=False, port=5000)

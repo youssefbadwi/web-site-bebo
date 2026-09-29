@@ -215,6 +215,11 @@
                     <i class="fa-solid fa-plus-circle text-emerald-600"></i>
                     <span>إضافة عباية جديدة</span>
                 </button>
+                <button onclick="switchTab('categories')" id="tabBtnCategories" class="py-4 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-layer-group text-purple-600"></i>
+                    <span>إدارة الأقسام</span>
+                    <span id="tabCategoriesBadge" class="bg-purple-100 text-purple-800 text-[11px] px-2 py-0.5 rounded-full font-bold">5</span>
+                </button>
             </div>
 
             <!-- Tab 1: دفتر تكلفة وأرباح العبايات (ACCOUNTING & MARGINS) -->
@@ -340,6 +345,7 @@
                                 <th class="py-3 px-4">الصورة</th>
                                 <th class="py-3 px-4">اسم الموديل</th>
                                 <th class="py-3 px-4">القسم</th>
+                                <th class="py-3 px-4 text-purple-700">التاجر / المورد</th>
                                 <th class="py-3 px-4">سعر البيع</th>
                                 <th class="py-3 px-4">المقاسات</th>
                                 <th class="py-3 px-4">الشارة</th>
@@ -367,14 +373,27 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">القسم / التصنيف *</label>
-                            <select id="newProdCategory" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-semibold text-slate-700">القسم / التصنيف *</label>
+                                <button type="button" onclick="switchTab('categories')" class="text-[11px] text-purple-600 hover:text-purple-800 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-plus-circle text-[10px]"></i>
+                                    <span>إدارة وتعديل الأقسام</span>
+                                </button>
+                            </div>
+                            <select id="newProdCategory" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500 font-medium">
                                 <option value="عبايات خروج وكاجوال">عبايات خروج وكاجوال</option>
                                 <option value="عبايات سواريه ومناسبات">عبايات سواريه ومناسبات</option>
                                 <option value="عبايات خليجي وبشت">عبايات خليجي وبشت</option>
                                 <option value="إسدالات واستقبال">إسدالات واستقبال</option>
                                 <option value="عبايات كتان وصيفي">عبايات كتان وصيفي</option>
                             </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">اسم التاجر / المورد (خاص بالإدارة) 🏷️</label>
+                            <input type="text" id="newProdMerchant" placeholder="مثال: تاجر الأزهر، مصنع البرنس، وكالة البلح..." 
+                                   class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-purple-500 font-medium">
+                            <span class="text-[10px] text-slate-400 mt-1 block">خاص بالشريكين فقط لمعرفة مصدر الموديل (مخفي عن الزبائن).</span>
                         </div>
 
                         <div>
@@ -493,6 +512,58 @@
                         </button>
                     </div>
                 </form>
+            </div>
+
+            <!-- Tab 5: إدارة الأقسام والتصنيفات (CATEGORIES MANAGEMENT) -->
+            <div id="tabContentCategories" class="hidden p-4 sm:p-6 max-w-4xl">
+                <div class="mb-6 pb-3 border-b border-slate-200">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900 font-cairo flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-purple-600"></i>
+                        <span>إدارة أقسام وتصنيفات المتجر</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">أضف أقسامك الخاصة بحرية تامة (مثل: عبايات كلوش ملكي، طرح ونقابات، عبايات صيفية، كولكشن العيد...). تظهر فوراً في شريط المتجر الرئيسي وقائمة إضافة الموديلات.</p>
+                </div>
+
+                <!-- Add Category Form Card -->
+                <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-5 mb-6 shadow-sm">
+                    <h3 class="text-xs font-bold text-purple-950 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus-circle text-purple-600"></i>
+                        <span>إضافة قسم جديد للمتجر</span>
+                    </h3>
+                    <form onsubmit="handleAddNewCategory(event)" class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1">
+                            <input type="text" id="newCategoryInput" required placeholder="اكتب اسم القسم هنا (مثال: عبايات كلوش ملكي، طرح ونقابات...)" 
+                                   class="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 font-medium">
+                        </div>
+                        <button type="submit" id="addCategoryBtn" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition-all whitespace-nowrap">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>إضافة القسم الآن</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Categories List Table -->
+                <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                    <div class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700">الأقسام الحالية المعتمدة في المتجر</span>
+                        <span id="categoriesCountBadge" class="bg-purple-100 text-purple-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full font-mono">0 قسم</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-slate-100/70 text-slate-600 font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="py-3 px-5">#</th>
+                                    <th class="py-3 px-5">اسم القسم</th>
+                                    <th class="py-3 px-5">الحالة</th>
+                                    <th class="py-3 px-5 text-center">إجراء (حذف)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody" class="divide-y divide-slate-100">
+                                <!-- Dynamically populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -645,7 +716,8 @@
             await Promise.all([
                 loadStats(),
                 loadAdminOrders(),
-                loadAdminProducts()
+                loadAdminProducts(),
+                loadAdminCategories()
             ]);
         }
 
@@ -858,8 +930,9 @@
                     <td class="py-2.5 px-3">
                         <img src="${p.image}" class="w-10 h-12 object-cover object-top rounded-lg border shadow-sm">
                     </td>
-                    <td class="py-2.5 px-3 font-bold text-slate-900 max-w-[200px] truncate" title="${p.name}">
-                        ${p.name}
+                    <td class="py-2.5 px-3 max-w-[220px]" title="${p.name}">
+                        <div class="font-bold text-slate-900 truncate">${p.name}</div>
+                        ${p.merchant_name ? `<span class="inline-flex items-center gap-1 text-[10px] text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded mt-0.5 font-medium"><i class="fa-solid fa-store text-[9px]"></i> التاجر: ${p.merchant_name}</span>` : ''}
                     </td>
                     <td class="py-2.5 px-3 text-slate-600 text-[11px]">${p.category}</td>
                     
@@ -933,7 +1006,7 @@
         function renderAdminProducts() {
             const tbody = document.getElementById('productsTableBody');
             if (!adminProducts || adminProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-slate-400 font-semibold text-xs"><i class="fa-solid fa-shirt text-2xl mb-2 text-slate-300 block"></i>لا توجد موديلات حالياً. اضغط على "إضافة موديل جديد" بالأعلى لإضافة أول عباية.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-slate-400 font-semibold text-xs"><i class="fa-solid fa-shirt text-2xl mb-2 text-slate-300 block"></i>لا توجد موديلات حالياً. اضغط على "إضافة موديل جديد" بالأعلى لإضافة أول عباية.</td></tr>`;
                 return;
             }
             tbody.innerHTML = adminProducts.map(p => `
@@ -943,6 +1016,9 @@
                     </td>
                     <td class="py-2 px-4 font-bold text-slate-900">${p.name}</td>
                     <td class="py-2 px-4 text-slate-600">${p.category}</td>
+                    <td class="py-2 px-4">
+                        ${p.merchant_name ? `<span class="bg-purple-50 text-purple-700 border border-purple-200 text-[11px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1"><i class="fa-solid fa-store text-[10px]"></i> ${p.merchant_name}</span>` : '<span class="text-slate-400 text-xs">-</span>'}
+                    </td>
                     <td class="py-2 px-4 font-mono font-bold text-amber-600">${p.price} ج.م</td>
                     <td class="py-2 px-4 text-slate-700">${p.sizes || '-'}</td>
                     <td class="py-2 px-4">
@@ -1132,6 +1208,7 @@
             const payload = {
                 name: document.getElementById('newProdName').value.trim(),
                 category: document.getElementById('newProdCategory').value,
+                merchant_name: document.getElementById('newProdMerchant') ? document.getElementById('newProdMerchant').value.trim() : '',
                 cost_price: parseFloat(document.getElementById('newProdCostPrice').value) || 0,
                 price: parseFloat(document.getElementById('newProdPrice').value),
                 old_price: document.getElementById('newProdOldPrice').value ? parseFloat(document.getElementById('newProdOldPrice').value) : null,
@@ -1158,6 +1235,7 @@
                         confirmButtonColor: '#0f172a'
                     });
                     document.getElementById('addProductForm').reset();
+                    if (document.getElementById('newProdMerchant')) document.getElementById('newProdMerchant').value = '';
                     document.getElementById('newProdImage').value = '';
                     document.getElementById('uploadPlaceholder').classList.remove('hidden');
                     document.getElementById('uploadPreview').classList.add('hidden');
@@ -1237,24 +1315,165 @@
         }
 
         function switchTab(tab) {
-            const tabs = ['accounting', 'orders', 'products', 'addProduct'];
+            const tabs = ['accounting', 'orders', 'products', 'addProduct', 'categories'];
             tabs.forEach(t => {
                 const content = document.getElementById(`tabContent${capitalize(t)}`);
                 const btn = document.getElementById(`tabBtn${capitalize(t)}`);
-                if (t === tab) {
-                    content.classList.remove('hidden');
-                    btn.classList.add('border-slate-900', 'text-slate-900');
-                    btn.classList.remove('border-transparent', 'text-slate-500');
-                } else {
-                    content.classList.add('hidden');
-                    btn.classList.remove('border-slate-900', 'text-slate-900');
-                    btn.classList.add('border-transparent', 'text-slate-500');
+                if (content && btn) {
+                    if (t === tab) {
+                        content.classList.remove('hidden');
+                        btn.classList.add('border-slate-900', 'text-slate-900');
+                        btn.classList.remove('border-transparent', 'text-slate-500');
+                    } else {
+                        content.classList.add('hidden');
+                        btn.classList.remove('border-slate-900', 'text-slate-900');
+                        btn.classList.add('border-transparent', 'text-slate-500');
+                    }
                 }
             });
         }
 
         function capitalize(str) {
             return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // ================= CATEGORIES MANAGEMENT =================
+        let adminCategories = [];
+
+        async function loadAdminCategories() {
+            try {
+                const res = await fetch('/api/categories');
+                adminCategories = await res.json();
+                renderCategoriesTable();
+                populateCategorySelects();
+            } catch (e) {
+                console.error("Error loading categories:", e);
+            }
+        }
+
+        function renderCategoriesTable() {
+            const tbody = document.getElementById('categoriesTableBody');
+            const badge = document.getElementById('categoriesCountBadge');
+            const tabBadge = document.getElementById('tabCategoriesBadge');
+            if (badge) badge.innerText = `${adminCategories.length} قسم`;
+            if (tabBadge) tabBadge.innerText = adminCategories.length;
+
+            if (!tbody) return;
+            if (!adminCategories || adminCategories.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400 font-semibold text-xs">لا توجد أقسام مسجلة. يمكنك إضافة أول قسم من النموذج أعلاه.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = adminCategories.map((c, idx) => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-5 font-mono text-slate-400 font-bold">${idx + 1}</td>
+                    <td class="py-3 px-5">
+                        <span class="font-bold text-slate-900 text-sm font-cairo">${c.name}</span>
+                    </td>
+                    <td class="py-3 px-5">
+                        <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>نشط ومعروض بالمتجر</span>
+                        </span>
+                    </td>
+                    <td class="py-3 px-5 text-center">
+                        <button onclick="handleDeleteCategory(${c.id}, '${c.name.replace(/'/g, "\\'")}')" class="text-rose-500 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 mx-auto shadow-sm">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                            <span>حذف القسم</span>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function populateCategorySelects() {
+            const select = document.getElementById('newProdCategory');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = adminCategories.map(c => `
+                <option value="${c.name}">${c.name}</option>
+            `).join('');
+            if (currentVal && adminCategories.some(c => c.name === currentVal)) {
+                select.value = currentVal;
+            }
+        }
+
+        async function handleAddNewCategory(e) {
+            e.preventDefault();
+            const input = document.getElementById('newCategoryInput');
+            const name = input.value.trim();
+            if (!name) return;
+
+            const btn = document.getElementById('addCategoryBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري الإضافة...</span>';
+
+            try {
+                const res = await fetch('/api/admin/categories', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name: name, icon: 'tag' })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-start',
+                        icon: 'success',
+                        title: `تمت إضافة قسم "${name}" بنجاح!`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    input.value = '';
+                    await loadAdminCategories();
+                } else {
+                    Swal.fire('خطأ', data.error || 'فشل في إضافة القسم', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('خطأ', 'حدث خطأ في الاتصال أثناء إضافة القسم', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus"></i> <span>إضافة القسم الآن</span>';
+            }
+        }
+
+        async function handleDeleteCategory(catId, catName) {
+            const result = await Swal.fire({
+                title: 'تأكيد حذف القسم',
+                text: `هل أنت متأكد من حذف قسم "${catName}" من المتجر؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'نعم، احذف القسم',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/api/admin/categories/${catId}`, {
+                        method: 'DELETE'
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'bottom-start',
+                            icon: 'success',
+                            title: 'تم حذف القسم بنجاح!',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        await loadAdminCategories();
+                    } else {
+                        Swal.fire('خطأ', data.error || 'تعذر حذف القسم', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('خطأ', 'حدث خطأ في الاتصال أثناء الحذف', 'error');
+                }
+            }
         }
     </script>
 </body>

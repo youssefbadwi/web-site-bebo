@@ -31,8 +31,20 @@ def get_categories():
     res = client.table('categories').select('*').order('id', desc=False).execute()
     return res.data or []
 
+def add_category(name, slug=None, icon='tag'):
+    client = get_client()
+    slug_val = slug or f"cat_{uuid.uuid4().hex[:6]}"
+    res = client.table('categories').insert({'name': name, 'slug': slug_val, 'icon': icon}).execute()
+    return res.data[0] if res.data else {}
+
+def delete_category(category_id):
+    client = get_client()
+    client.table('categories').delete().eq('id', category_id).execute()
+    return True
+
 # ----------------- PRODUCTS -----------------
 def get_products(category=None, search=None, sort_by='newest', featured_only=None, is_admin=False):
+    import re
     client = get_client()
     query = client.table('products').select('*').eq('in_stock', 1)
     
@@ -58,21 +70,30 @@ def get_products(category=None, search=None, sort_by='newest', featured_only=Non
         p = dict(r)
         if not is_admin:
             p.pop('cost_price', None)
+            if p.get('description'):
+                p['description'] = re.sub(r'<!--merchant:.*?-->', '', p['description']).strip()
         products.append(p)
     return products
 
 def get_product(product_id, is_admin=False):
+    import re
     client = get_client()
     res = client.table('products').select('*').eq('id', product_id).execute()
     if res.data:
         p = dict(res.data[0])
         if not is_admin:
             p.pop('cost_price', None)
+            if p.get('description'):
+                p['description'] = re.sub(r'<!--merchant:.*?-->', '', p['description']).strip()
         return p
     return None
 
 def add_product(data):
     client = get_client()
+    merchant = data.pop('merchant_name', None) or data.pop('merchant', None)
+    if merchant:
+        desc = data.get('description') or ''
+        data['description'] = f"{desc}\n<!--merchant:{merchant}-->".strip()
     res = client.table('products').insert(data).execute()
     return res.data[0] if res.data else {}
 
@@ -87,6 +108,7 @@ def update_product_cost(product_id, cost_price):
     return True
 
 def get_admin_products():
+    import re
     client = get_client()
     rows = client.table('products').select('*').order('id', desc=False).execute().data or []
     products = []
@@ -102,6 +124,15 @@ def get_admin_products():
         p['partner_share'] = share
         p['youssef_share'] = share
         p['bibo_share'] = share
+
+        merchant = p.get('merchant_name') or ''
+        if not merchant and p.get('description'):
+            m = re.search(r'<!--merchant:(.*?)-->', p['description'])
+            if m:
+                merchant = m.group(1).strip()
+                p['description'] = re.sub(r'<!--merchant:.*?-->', '', p['description']).strip()
+        p['merchant_name'] = merchant
+
         products.append(p)
     return products
 

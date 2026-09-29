@@ -168,7 +168,7 @@
         </div>
 
         <!-- Horizontal Scrollable Category Chips -->
-        <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar pt-2.5 pb-1 text-xs">
+        <div id="categoryChipsContainer" class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar pt-2.5 pb-1 text-xs">
             <button onclick="filterCategory('all')" data-cat="all" class="cat-chip active px-3.5 py-1.5 rounded-full font-bold whitespace-nowrap bg-black text-[#FFD700] shadow-sm transition-all">
                 الكل
             </button>
@@ -613,6 +613,7 @@
         let selectedQty = 1;
 
         document.addEventListener('DOMContentLoaded', () => {
+            fetchCategories();
             fetchProducts();
             updateCartBadges();
 
@@ -625,6 +626,47 @@
                 });
             }
         });
+
+        async function fetchCategories() {
+            try {
+                const response = await fetch('/api/categories');
+                const cats = await response.json();
+                if (cats && cats.length > 0) {
+                    renderCategoryChips(cats);
+                    renderDrawerCategories(cats);
+                }
+            } catch (err) {
+                console.error("Error loading categories:", err);
+            }
+        }
+
+        function renderCategoryChips(cats) {
+            const container = document.getElementById('categoryChipsContainer');
+            if (!container) return;
+            const isAllActive = (activeCategory === 'all');
+            let html = `
+                <button onclick="filterCategory('all')" data-cat="all" class="cat-chip ${isAllActive ? 'bg-black text-[#FFD700] shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} px-3.5 py-1.5 rounded-full font-bold whitespace-nowrap transition-all">
+                    الكل
+                </button>
+            `;
+            html += cats.map(c => {
+                const isActive = (activeCategory === c.name);
+                return `
+                <button onclick="filterCategory('${c.name}')" data-cat="${c.name}" class="cat-chip ${isActive ? 'bg-black text-[#FFD700] shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all">
+                    ${c.name}
+                </button>
+                `;
+            }).join('');
+            container.innerHTML = html;
+        }
+
+        function renderDrawerCategories(cats) {
+            const sub = document.getElementById('drawerSubmenu');
+            if (!sub) return;
+            sub.innerHTML = cats.map(c => `
+                <a href="#" onclick="filterCategory('${c.name}'); closeSideDrawer(); return false;" class="block py-1.5 hover:text-black">${c.name}</a>
+            `).join('');
+        }
 
         async function fetchProducts() {
             try {
