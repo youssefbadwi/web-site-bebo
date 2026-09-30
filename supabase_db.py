@@ -191,13 +191,19 @@ def get_stats():
 
     orders = client.table('orders').select('*').execute().data or []
     total_orders = len(orders)
-    total_sales = sum(float(o.get('total_amount') or 0.0) for o in orders)
+    
+    # Filter ONLY DELIVERED orders ('delivered' or 'تم التوصيل')
+    delivered_orders = [
+        o for o in orders 
+        if str(o.get('status', '')).strip().lower() in ('delivered', 'تم التوصيل')
+    ]
+    delivered_count = len(delivered_orders)
+    
+    total_sales = sum(float(o.get('total_amount') or 0.0) for o in delivered_orders)
     total_cost = 0.0
-    pending_orders = 0
+    pending_orders = sum(1 for o in orders if str(o.get('status', '')).strip().lower() in ('pending', 'قيد الانتظار', 'جديد'))
 
-    for o in orders:
-        if o.get('status') == 'pending':
-            pending_orders += 1
+    for o in delivered_orders:
         try:
             items = json.loads(o['items_json']) if isinstance(o['items_json'], str) else (o['items_json'] or [])
             for itm in items:
@@ -214,6 +220,7 @@ def get_stats():
 
     return {
         'total_orders': total_orders,
+        'delivered_orders': delivered_count,
         'total_sales': round(total_sales, 2),
         'total_cost': round(total_cost, 2),
         'net_profit': net_profit,

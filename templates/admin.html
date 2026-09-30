@@ -94,9 +94,9 @@
                         <div>
                             <span class="text-xs font-semibold text-slate-500 block">إجمالي المبيعات المحصلة</span>
                             <h3 id="statSales" class="text-2xl font-extrabold text-slate-900 font-mono mt-1">0.00 ج.م</h3>
-                            <span class="text-[11px] text-amber-600 font-medium flex items-center gap-1 mt-1">
-                                <i class="fa-solid fa-bag-shopping"></i>
-                                <span>قيمة فواتير العبايات</span>
+                            <span class="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>للطلبات المسلّمة فقط (تم التوصيل)</span>
                             </span>
                         </div>
                         <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shadow-inner">
@@ -113,7 +113,7 @@
                             <h3 id="statCost" class="text-2xl font-extrabold text-slate-700 font-mono mt-1">0.00 ج.م</h3>
                             <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1 mt-1">
                                 <i class="fa-solid fa-truck-ramp-box"></i>
-                                <span>سعر الشراء بالجملة</span>
+                                <span>تكلفة العبايات المسلّمة</span>
                             </span>
                         </div>
                         <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shadow-inner">
@@ -126,7 +126,7 @@
                 <div class="bg-gradient-to-br from-emerald-950 to-slate-900 text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
                     <div class="flex items-center justify-between">
                         <div>
-                            <span class="text-xs font-semibold text-emerald-300 block">صافي الأرباح الكلية</span>
+                            <span class="text-xs font-semibold text-emerald-300 block">صافي الأرباح المحصلة</span>
                             <h3 id="statProfit" class="text-2xl font-extrabold text-emerald-400 font-mono mt-1">0.00 ج.م</h3>
                             <span class="text-[11px] text-emerald-200 font-medium flex items-center gap-1 mt-1">
                                 <i class="fa-solid fa-arrow-trend-up"></i>
@@ -147,7 +147,7 @@
                             <h3 id="statYoussefShare" class="text-2xl font-extrabold text-white font-mono mt-1">0.00 ج.م</h3>
                             <span class="text-[11px] text-amber-200 font-medium flex items-center gap-1 mt-1">
                                 <i class="fa-solid fa-scale-balanced"></i>
-                                <span>نصيب 50% من الأرباح</span>
+                                <span>نصيب 50% من الأرباح المحصلة</span>
                             </span>
                         </div>
                         <div class="w-11 h-11 rounded-2xl bg-white/20 text-white flex items-center justify-center text-lg border border-white/20 font-bold font-cairo">
@@ -164,7 +164,7 @@
                             <h3 id="statBiboShare" class="text-2xl font-extrabold text-white font-mono mt-1">0.00 ج.م</h3>
                             <span class="text-[11px] text-amber-200 font-medium flex items-center gap-1 mt-1">
                                 <i class="fa-solid fa-scale-balanced"></i>
-                                <span>نصيب 50% من الأرباح</span>
+                                <span>نصيب 50% من الأرباح المحصلة</span>
                             </span>
                         </div>
                         <div class="w-11 h-11 rounded-2xl bg-white/20 text-white flex items-center justify-center text-lg border border-white/20 font-bold font-cairo">
@@ -176,10 +176,14 @@
             </div>
 
             <!-- Operational mini strip -->
-            <div class="grid grid-cols-3 gap-3 mt-3">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
                 <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
                     <span class="text-[11px] text-slate-500 block">إجمالي الطلبات</span>
                     <span id="statOrders" class="font-mono font-bold text-base text-slate-900">0</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-emerald-200 text-center bg-emerald-50/40">
+                    <span class="text-[11px] text-emerald-800 font-bold block">طلبات تم تسليمها (محسوبة)</span>
+                    <span id="statDelivered" class="font-mono font-bold text-base text-emerald-700">0</span>
                 </div>
                 <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
                     <span class="text-[11px] text-amber-600 font-semibold block">طلبات شحن جديدة</span>
@@ -956,6 +960,9 @@
                 document.getElementById('statBiboShare').innerText = `${shareBibo.toFixed(2)} ج.م`;
                 
                 document.getElementById('statOrders').innerText = data.total_orders;
+                if (document.getElementById('statDelivered')) {
+                    document.getElementById('statDelivered').innerText = data.delivered_orders !== undefined ? data.delivered_orders : 0;
+                }
                 document.getElementById('statPending').innerText = data.pending_orders;
                 document.getElementById('statProducts').innerText = data.total_products;
             } catch (e) {

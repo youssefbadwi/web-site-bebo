@@ -1215,13 +1215,19 @@ def get_stats():
     cursor.execute('SELECT id, cost_price, price FROM products')
     prod_costs = {p['id']: float(p['cost_price'] or 0.0) for p in cursor.fetchall()}
 
-    cursor.execute('SELECT COUNT(*) as total_orders, COALESCE(SUM(total_amount), 0) as total_sales FROM orders')
-    order_stats = cursor.fetchone()
+    cursor.execute('SELECT COUNT(*) as total_orders FROM orders')
+    total_orders = cursor.fetchone()[0]
 
-    cursor.execute('SELECT items_json, total_amount FROM orders')
-    orders = cursor.fetchall()
+    cursor.execute('SELECT COUNT(*) FROM orders WHERE status IN ("pending", "قيد الانتظار")')
+    pending_orders = cursor.fetchone()[0]
+
+    cursor.execute('SELECT items_json, total_amount FROM orders WHERE status IN ("delivered", "تم التوصيل")')
+    delivered_orders = cursor.fetchall()
+    delivered_count = len(delivered_orders)
+
+    total_sales = sum(float(ord_row['total_amount'] or 0.0) for ord_row in delivered_orders)
     total_cost = 0.0
-    for ord_row in orders:
+    for ord_row in delivered_orders:
         try:
             items = json.loads(ord_row['items_json'])
             for itm in items:
@@ -1235,18 +1241,16 @@ def get_stats():
     cursor.execute('SELECT COUNT(*) FROM products')
     total_products = cursor.fetchone()[0]
 
-    cursor.execute('SELECT COUNT(*) FROM orders WHERE status = "pending"')
-    pending_orders = cursor.fetchone()[0]
-
     conn.close()
 
-    total_sales = round(float(order_stats['total_sales']), 2)
+    total_sales = round(total_sales, 2)
     net_profit = max(0.0, round(total_sales - total_cost, 2))
     partner_share = round(net_profit / 2.0, 2)
     profit_margin_pct = round((net_profit / total_sales * 100), 1) if total_sales > 0 else 0.0
 
     return jsonify({
-        'total_orders': order_stats['total_orders'],
+        'total_orders': total_orders,
+        'delivered_orders': delivered_count,
         'total_sales': total_sales,
         'total_cost': round(total_cost, 2),
         'net_profit': net_profit,
