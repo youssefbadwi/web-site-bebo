@@ -247,3 +247,135 @@ def upload_image(file_obj, filename):
     client.storage.from_('products').upload(unique_name, file_bytes, file_options={'content-type': content_type})
     public_url = client.storage.from_('products').get_public_url(unique_name)
     return public_url, unique_name
+
+# ----------------- SETTINGS, DISCOUNTS & REVIEWS -----------------
+DEFAULT_STORE_SETTINGS = {
+    'whatsapp': '01132647659',
+    'phone': '01132647658',
+    'facebook': 'https://www.facebook.com/share/1KEkt1NZbg/',
+    'tiktok': 'https://www.tiktok.com/@youssef.shas?_r=1&_t=ZS-9AAMIOqltSL',
+    'free_shipping_enabled': True,
+    'free_shipping_threshold': 1000,
+    'free_shipping_text': 'شحن مجاني لكافة المحافظات للطلبات فوق 1,000 ج.م 🚚✨'
+}
+
+def get_setting(key, default=None):
+    client = get_client()
+    try:
+        res = client.table('settings').select('val').eq('key', key).execute()
+        if res.data and len(res.data) > 0:
+            val = res.data[0]['val']
+            try:
+                return json.loads(val)
+            except Exception:
+                return val
+    except Exception as e:
+        print(f"Error reading setting {key}:", e)
+    return default
+
+def set_setting(key, val):
+    client = get_client()
+    val_str = json.dumps(val, ensure_ascii=False) if not isinstance(val, str) else val
+    client.table('settings').upsert({'key': key, 'val': val_str}).execute()
+    return True
+
+def get_store_settings():
+    settings = get_setting('store_settings', DEFAULT_STORE_SETTINGS)
+    if not isinstance(settings, dict):
+        settings = DEFAULT_STORE_SETTINGS
+    merged = dict(DEFAULT_STORE_SETTINGS)
+    merged.update(settings)
+    return merged
+
+def save_store_settings(new_settings):
+    current = get_store_settings()
+    current.update(new_settings)
+    set_setting('store_settings', current)
+    return current
+
+def get_discounts():
+    discounts = get_setting('discounts', [])
+    if not isinstance(discounts, list):
+        discounts = []
+    return discounts
+
+def save_discounts(discounts_list):
+    set_setting('discounts', discounts_list)
+    return True
+
+def validate_discount_code(code_str, subtotal):
+    if not code_str:
+        return {'valid': False, 'message': 'يرجى إدخال كود الخصم'}
+    code_clean = str(code_str).strip().upper()
+    discounts = get_discounts()
+    match = None
+    for d in discounts:
+        if d.get('code', '').upper() == code_clean:
+            match = d
+            break
+    if not match:
+        return {'valid': False, 'message': 'كود الخصم غير موجود أو غير صالح'}
+    if not match.get('is_active', True):
+        return {'valid': False, 'message': 'عذراً، تم إيقاف هذا الكود حالياً'}
+    
+    max_uses = int(match.get('max_uses', 0))
+    used_count = int(match.get('used_count', 0))
+    if max_uses > 0 and used_count >= max_uses:
+        return {'valid': False, 'message': 'عذراً، هذا الكود وصل للحد الأقصى من الاستخدام (انتهى العرض)'}
+
+    val = float(match.get('value', 0))
+    dtype = match.get('type', 'percent')
+    if dtype == 'percent':
+        discount_amount = round(subtotal * (val / 100.0), 2)
+    else:
+        discount_amount = min(subtotal, val)
+
+    remaining_uses = max(0, max_uses - used_count) if max_uses > 0 else 999
+    return {
+        'valid': True,
+        'code': match.get('code'),
+        'type': dtype,
+        'value': val,
+        'discount_amount': discount_amount,
+        'new_total': max(0.0, round(subtotal - discount_amount, 2)),
+        'remaining_uses': remaining_uses,
+        'max_uses': max_uses,
+        'message': f'تم تفعيل كود الخصم بنجاح! خصم {val}{"%" if dtype == "percent" else " ج.م"}'
+    }
+
+def record_discount_usage(code_str):
+    if not code_str:
+        return
+    code_clean = str(code_str).strip().upper()
+    discounts = get_discounts()
+    changed = False
+    for d in discounts:
+        if d.get('code', '').upper() == code_clean:
+            d['used_count'] = int(d.get('used_count', 0)) + 1
+            changed = True
+            break
+    if changed:
+        save_discounts(discounts)
+
+def get_reviews():
+    reviews = get_setting('reviews', [])
+    if not isinstance(reviews, list):
+        reviews = []
+    for r in reviews:
+        if 'customer_name' not in r or not r['customer_name']:
+            r['customer_name'] = r.get('name', 'عميلة دار حرير')
+        if 'name' not in r or not r['name']:
+            r['name'] = r.get('customer_name', 'عميلة دار حرير')
+    return reviews
+
+def add_review(review_dict):
+    reviews = get_reviews()
+    reviews.insert(0, review_dict)
+    set_setting('reviews', reviews)
+    return review_dict
+
+def delete_review(review_id):
+    reviews = get_reviews()
+    reviews = [r for r in reviews if str(r.get('id')) != str(review_id)]
+    set_setting('reviews', reviews)
+    return True

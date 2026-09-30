@@ -220,6 +220,11 @@
                     <span>إدارة الأقسام</span>
                     <span id="tabCategoriesBadge" class="bg-purple-100 text-purple-800 text-[11px] px-2 py-0.5 rounded-full font-bold">5</span>
                 </button>
+                <button onclick="switchTab('settings')" id="tabBtnSettings" class="py-4 px-3 sm:px-4 font-bold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-sliders text-amber-600"></i>
+                    <span>إعدادات المتجر والكوبونات والتقييمات</span>
+                    <span id="tabDiscountsBadge" class="bg-amber-100 text-amber-800 text-[11px] px-2 py-0.5 rounded-full font-bold">1</span>
+                </button>
             </div>
 
             <!-- Tab 1: دفتر تكلفة وأرباح العبايات (ACCOUNTING & MARGINS) -->
@@ -488,9 +493,18 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">المقاسات المتاحة (مفصولة بفاصلة)</label>
-                            <input type="text" id="newProdSizes" value="52,54,56,58,60" placeholder="52,54,56,58,60" 
-                                   class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">المقاسات المتاحة (اختياري)</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="newProdSizes" value="52,54,56,58,60" placeholder="اتركه فارغاً أو اختر مقاس موحد" 
+                                       class="flex-1 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500">
+                                <button type="button" onclick="document.getElementById('newProdSizes').value='مقاس موحد'" class="bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold px-3 py-1 rounded-xl transition whitespace-nowrap">
+                                    مقاس موحد
+                                </button>
+                                <button type="button" onclick="document.getElementById('newProdSizes').value='52,54,56,58,60'" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1 rounded-xl transition whitespace-nowrap">
+                                    52-60
+                                </button>
+                            </div>
+                            <span class="text-[10px] text-slate-400 mt-1 block">إذا كان الموديل مقاساً واحداً، اضغط "مقاس موحد" أو اتركه فارغاً ولن يُلزم العميل باختيار مقاس.</span>
                         </div>
 
                         <div>
@@ -566,7 +580,211 @@
                 </div>
             </div>
 
-        </div>
+            <!-- Tab 6: إعدادات المتجر والكوبونات والتقييمات (STORE SETTINGS, COUPONS & REVIEWS) -->
+            <div id="tabContentSettings" class="hidden p-4 sm:p-6 max-w-5xl space-y-8">
+                
+                <!-- Section 1: أرقام التواصل وروابط السوشيال والشحن المجاني -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <div class="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 font-cairo flex items-center gap-2">
+                                <i class="fa-solid fa-gear text-amber-600"></i>
+                                <span>إعدادات التواصل والشحن المجاني والشريط العلوي</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">تحكم في أرقام الواتساب والموبايل، روابط السوشيال ميديا، وحد الشحن المجاني التلقائي.</p>
+                        </div>
+                        <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-3 py-1 rounded-full">تحديث فوري بالمتجر</span>
+                    </div>
+
+                    <form id="storeSettingsForm" onsubmit="handleSaveSettings(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- WhatsApp -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                                    <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
+                                    <span>رقم الواتساب الجديد لاستقبال الطلبات والاستفسارات *</span>
+                                </label>
+                                <input type="text" id="settingWhatsapp" required value="01132647659" placeholder="01132647659" 
+                                       class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold focus:outline-none focus:border-amber-500" dir="ltr">
+                            </div>
+
+                            <!-- Direct Phone -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-phone text-blue-600 text-sm"></i>
+                                    <span>رقم الهاتف المباشر للاتصال والمكالمات *</span>
+                                </label>
+                                <input type="text" id="settingPhone" required value="01132647658" placeholder="01132647658" 
+                                       class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold focus:outline-none focus:border-amber-500" dir="ltr">
+                            </div>
+
+                            <!-- Facebook -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                                    <i class="fa-brands fa-facebook text-blue-600 text-sm"></i>
+                                    <span>رابط صفحة الفيسبوك</span>
+                                </label>
+                                <input type="url" id="settingFacebook" value="https://www.facebook.com/share/1KEkt1NZbg/" placeholder="https://www.facebook.com/..." 
+                                       class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-amber-500" dir="ltr">
+                            </div>
+
+                            <!-- TikTok -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                                    <i class="fa-brands fa-tiktok text-slate-900 text-sm"></i>
+                                    <span>رابط حساب التيك توك</span>
+                                </label>
+                                <input type="url" id="settingTiktok" value="https://www.tiktok.com/@youssef.shas?_r=1&_t=ZS-9AAMIOqltSL" placeholder="https://www.tiktok.com/@..." 
+                                       class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-amber-500" dir="ltr">
+                            </div>
+                        </div>
+
+                        <!-- Free Shipping & Announcement -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">الحد الأدنى للشحن المجاني (ج.م)</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="settingFreeShippingThreshold" value="1000" min="0" 
+                                           class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs font-mono font-bold focus:outline-none focus:border-amber-500">
+                                    <div class="flex items-center gap-1.5 whitespace-nowrap">
+                                        <input type="checkbox" id="settingFreeShippingActive" checked class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-slate-300">
+                                        <label for="settingFreeShippingActive" class="text-xs font-bold text-slate-700 cursor-pointer">مفعل</label>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-slate-400 mt-1 block">إذا كان إجمالي سلة المشتريات أكبر من أو يساوي هذا المبلغ، يصبح الشحن مجاناً تلقائياً.</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">نص الشريط الإعلاني العلوي</label>
+                                <input type="text" id="settingAnnouncementText" value="دار حرير للعبايات الفاخرة • شحن وتوصيل لكافة المحافظات ✨" 
+                                       class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500 font-medium">
+                                <span class="text-[10px] text-slate-400 mt-1 block">يظهر في أعلى شريط بالمتجر للمستخدمين.</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-3">
+                            <button type="submit" id="saveSettingsBtn" class="bg-slate-900 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition shadow">
+                                <i class="fa-solid fa-floppy-disk text-amber-400"></i>
+                                <span>حفظ وتحديث الإعدادات الآن</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Section 2: إدارة كوبونات وأكواد الخصم والعداد التنازلي -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <div class="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 font-cairo flex items-center gap-2">
+                                <i class="fa-solid fa-ticket text-rose-600"></i>
+                                <span>كوبونات وأكواد الخصم (مع عداد تنازلي للمستخدمين)</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">حدّد كود خصم لعدد معين من المستخدمين (مثلاً: 20 مستخدم)، وسيظهر عداد تنازلي بره بالمتجر يوضح عدد الأكواد المتبقية!</p>
+                        </div>
+                    </div>
+
+                    <!-- Create Coupon Card -->
+                    <div class="bg-rose-50/50 border border-rose-200/80 rounded-xl p-4 mb-6">
+                        <h4 class="text-xs font-bold text-rose-900 mb-3 flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus-circle text-rose-600"></i>
+                            <span>إنشاء كود خصم جديد</span>
+                        </h4>
+                        <form onsubmit="handleCreateDiscount(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">كود الخصم (بالإنجليزي) *</label>
+                                <input type="text" id="newCouponCode" required placeholder="مثال: HAREER20" 
+                                       class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs font-mono font-bold uppercase focus:outline-none focus:border-rose-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">نوع الخصم *</label>
+                                <select id="newCouponType" class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs font-bold focus:outline-none focus:border-rose-500">
+                                    <option value="percent">نسبة مئوية (%)</option>
+                                    <option value="fixed">مبلغ ثابت (ج.م)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">قيمة الخصم *</label>
+                                <input type="number" id="newCouponValue" required min="1" placeholder="مثال: 20" 
+                                       class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs font-mono font-bold focus:outline-none focus:border-rose-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">الحد الأقصى للمستخدمين *</label>
+                                <input type="number" id="newCouponMaxUses" required min="1" value="20" placeholder="20 مستخدم" 
+                                       class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs font-mono font-bold focus:outline-none focus:border-rose-500">
+                            </div>
+
+                            <div class="flex items-end">
+                                <button type="submit" id="createCouponBtn" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold p-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>إنشاء الكود</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Coupons Table -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-700">الكوبونات المسجلة وحالة العداد التنازلي</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-xs">
+                                <thead class="bg-slate-100/70 text-slate-600 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-3 px-4">الكود</th>
+                                        <th class="py-3 px-4">قيمة الخصم</th>
+                                        <th class="py-3 px-4">استخدامات الكود</th>
+                                        <th class="py-3 px-4">المتبقي (العداد)</th>
+                                        <th class="py-3 px-4">الحالة</th>
+                                        <th class="py-3 px-4 text-center">حذف</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="discountsTableBody" class="divide-y divide-slate-100">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: إدارة تقييمات وآراء العميلات -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <div class="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 font-cairo flex items-center gap-2">
+                                <i class="fa-solid fa-star text-amber-500"></i>
+                                <span>تقييمات وآراء العميلات</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">آراء وتجارب العميلات التي تم إرسالها من خلال صفحة المتجر، يمكنك مراجعتها وحذف أي تقييم غير مناسب.</p>
+                        </div>
+                        <span id="reviewsCountBadge" class="bg-amber-100 text-amber-800 text-[11px] font-bold px-3 py-1 rounded-full font-mono">0 تقييم</span>
+                    </div>
+
+                    <!-- Reviews Table -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-xs">
+                                <thead class="bg-slate-100/70 text-slate-600 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-3 px-4">العميلة</th>
+                                        <th class="py-3 px-4">التقييم</th>
+                                        <th class="py-3 px-4">الرأي / التعليق</th>
+                                        <th class="py-3 px-4">التاريخ</th>
+                                        <th class="py-3 px-4 text-center">إجراء (حذف)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reviewsTableBody" class="divide-y divide-slate-100">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
 
     </main>
 
@@ -717,7 +935,9 @@
                 loadStats(),
                 loadAdminOrders(),
                 loadAdminProducts(),
-                loadAdminCategories()
+                loadAdminCategories(),
+                loadAdminSettings(),
+                loadAdminReviews()
             ]);
         }
 
@@ -1315,7 +1535,7 @@
         }
 
         function switchTab(tab) {
-            const tabs = ['accounting', 'orders', 'products', 'addProduct', 'categories'];
+            const tabs = ['accounting', 'orders', 'products', 'addProduct', 'categories', 'settings'];
             tabs.forEach(t => {
                 const content = document.getElementById(`tabContent${capitalize(t)}`);
                 const btn = document.getElementById(`tabBtn${capitalize(t)}`);
@@ -1468,6 +1688,305 @@
                         await loadAdminCategories();
                     } else {
                         Swal.fire('خطأ', data.error || 'تعذر حذف القسم', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('خطأ', 'حدث خطأ في الاتصال أثناء الحذف', 'error');
+                }
+            }
+        }
+
+        // ================= SETTINGS, DISCOUNTS & REVIEWS =================
+        let adminSettings = {};
+        let adminDiscounts = [];
+        let adminReviews = [];
+
+        async function loadAdminSettings() {
+            try {
+                const res = await fetch('/api/admin/settings');
+                const data = await res.json();
+                adminSettings = data.settings || {};
+                adminDiscounts = data.discounts || [];
+                
+                // Populate settings inputs
+                if (document.getElementById('settingWhatsapp')) document.getElementById('settingWhatsapp').value = adminSettings.whatsapp_number || '01132647659';
+                if (document.getElementById('settingPhone')) document.getElementById('settingPhone').value = adminSettings.contact_phone || '01132647658';
+                if (document.getElementById('settingFacebook')) document.getElementById('settingFacebook').value = adminSettings.facebook_url || '';
+                if (document.getElementById('settingTiktok')) document.getElementById('settingTiktok').value = adminSettings.tiktok_url || '';
+                if (document.getElementById('settingFreeShippingThreshold')) document.getElementById('settingFreeShippingThreshold').value = adminSettings.free_shipping_threshold ?? 1000;
+                if (document.getElementById('settingFreeShippingActive')) document.getElementById('settingFreeShippingActive').checked = adminSettings.free_shipping_active !== false;
+                if (document.getElementById('settingAnnouncementText')) document.getElementById('settingAnnouncementText').value = adminSettings.announcement_text || 'دار حرير للعبايات الفاخرة • شحن وتوصيل لكافة المحافظات ✨';
+
+                renderDiscountsTable();
+            } catch (e) {
+                console.error("Error loading settings:", e);
+            }
+        }
+
+        async function handleSaveSettings(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveSettingsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري الحفظ...</span>';
+
+            const payload = {
+                whatsapp_number: document.getElementById('settingWhatsapp').value.trim(),
+                contact_phone: document.getElementById('settingPhone').value.trim(),
+                facebook_url: document.getElementById('settingFacebook').value.trim(),
+                tiktok_url: document.getElementById('settingTiktok').value.trim(),
+                free_shipping_threshold: Number(document.getElementById('settingFreeShippingThreshold').value) || 0,
+                free_shipping_active: document.getElementById('settingFreeShippingActive').checked,
+                announcement_text: document.getElementById('settingAnnouncementText').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/admin/settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-start',
+                        icon: 'success',
+                        title: 'تم حفظ وتحديث إعدادات المتجر بنجاح!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire('خطأ', data.error || 'تعذر حفظ الإعدادات', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('خطأ', 'حدث خطأ في الاتصال أثناء حفظ الإعدادات', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk text-amber-400"></i> <span>حفظ وتحديث الإعدادات الآن</span>';
+            }
+        }
+
+        function renderDiscountsTable() {
+            const tbody = document.getElementById('discountsTableBody');
+            const tabBadge = document.getElementById('tabDiscountsBadge');
+            if (tabBadge) tabBadge.innerText = adminDiscounts.length;
+            if (!tbody) return;
+
+            if (!adminDiscounts || adminDiscounts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400 font-semibold text-xs">لا توجد كوبونات خصم حالياً. أضف أول كود خصم من النموذج أعلاه.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = adminDiscounts.map(d => {
+                const max = Number(d.max_uses) || 0;
+                const used = Number(d.used_count) || 0;
+                const remaining = Math.max(0, max - used);
+                const isExpired = remaining <= 0;
+                const discountDisplay = d.discount_type === 'percent' ? `${d.discount_value}%` : `${d.discount_value} ج.م`;
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4">
+                            <span class="font-mono font-bold text-slate-900 bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-1 rounded-lg text-xs uppercase">${escapeHtml(d.code)}</span>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-rose-600 font-mono text-xs">
+                            خصم ${discountDisplay}
+                        </td>
+                        <td class="py-3 px-4 font-mono text-xs text-slate-700">
+                            تم استخدام: <strong class="text-slate-900">${used}</strong> / ${max}
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center gap-1.5 ${remaining > 5 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'} border text-[11px] font-bold px-2.5 py-0.5 rounded-full font-mono">
+                                <span class="w-1.5 h-1.5 rounded-full ${remaining > 5 ? 'bg-emerald-500' : 'bg-rose-500 animate-ping'}"></span>
+                                <span>متبقي ${remaining} مستخدم ⏳</span>
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            ${!isExpired && d.is_active ? 
+                                `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">نشط ومعروض</span>` : 
+                                `<span class="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">منتهي / غير مفعل</span>`
+                            }
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="handleDeleteDiscount('${escapeHtml(d.code)}')" class="text-rose-500 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 mx-auto shadow-sm">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                <span>حذف</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function handleCreateDiscount(e) {
+            e.preventDefault();
+            const code = document.getElementById('newCouponCode').value.trim().toUpperCase();
+            const discount_type = document.getElementById('newCouponType').value;
+            const discount_value = Number(document.getElementById('newCouponValue').value);
+            const max_uses = Number(document.getElementById('newCouponMaxUses').value) || 20;
+
+            if (!code || !discount_value) return;
+
+            const btn = document.getElementById('createCouponBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري الإنشاء...</span>';
+
+            try {
+                const res = await fetch('/api/admin/discounts', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        code: code,
+                        discount_type: discount_type,
+                        discount_value: discount_value,
+                        max_uses: max_uses,
+                        is_active: true
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-start',
+                        icon: 'success',
+                        title: `تم إنشاء كود «${code}» بنجاح لـ ${max_uses} عميل!`,
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                    document.getElementById('newCouponCode').value = '';
+                    document.getElementById('newCouponValue').value = '';
+                    await loadAdminSettings();
+                } else {
+                    Swal.fire('خطأ', data.error || 'فشل في إنشاء الكود', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('خطأ', 'حدث خطأ في الاتصال أثناء إنشاء الكوبون', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus"></i> <span>إنشاء الكود</span>';
+            }
+        }
+
+        async function handleDeleteDiscount(code) {
+            const result = await Swal.fire({
+                title: 'حذف كود الخصم',
+                text: `هل تريد حذف كود الخصم «${code}» نهائياً؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/api/admin/discounts/${encodeURIComponent(code)}`, {
+                        method: 'DELETE'
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'bottom-start',
+                            icon: 'success',
+                            title: 'تم حذف كود الخصم بنجاح!',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        await loadAdminSettings();
+                    } else {
+                        Swal.fire('خطأ', data.error || 'تعذر حذف كود الخصم', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('خطأ', 'حدث خطأ أثناء محاولة الحذف', 'error');
+                }
+            }
+        }
+
+        // ================= REVIEWS MANAGEMENT =================
+        async function loadAdminReviews() {
+            try {
+                const res = await fetch('/api/reviews');
+                adminReviews = await res.json();
+                renderReviewsTable();
+            } catch (e) {
+                console.error("Error loading reviews:", e);
+            }
+        }
+
+        function renderReviewsTable() {
+            const tbody = document.getElementById('reviewsTableBody');
+            const badge = document.getElementById('reviewsCountBadge');
+            if (badge) badge.innerText = `${adminReviews.length} تقييم`;
+            if (!tbody) return;
+
+            if (!adminReviews || adminReviews.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400 font-semibold text-xs">لا توجد تقييمات مسجلة بعد. عند تقييم العميلات ستظهر هنا مباشرة.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = adminReviews.map(r => {
+                const starsCount = Number(r.rating) || 5;
+                const starsHtml = '⭐'.repeat(starsCount);
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4 font-bold text-slate-900 text-xs font-cairo">
+                            ${escapeHtml(r.customer_name || 'عميلة دار حرير')}
+                        </td>
+                        <td class="py-3 px-4 text-amber-500 font-bold text-xs tracking-widest">
+                            ${starsHtml} <span class="text-slate-500 font-mono text-[11px]">(${starsCount}/5)</span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-700 text-xs max-w-xs leading-relaxed">
+                            "${escapeHtml(r.comment || '')}"
+                        </td>
+                        <td class="py-3 px-4 text-slate-400 font-mono text-[11px]">
+                            ${escapeHtml(r.created_at ? r.created_at.substring(0, 10) : '')}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="handleDeleteReview('${r.id}')" class="text-rose-500 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 mx-auto shadow-sm">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                <span>حذف</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function handleDeleteReview(reviewId) {
+            const result = await Swal.fire({
+                title: 'حذف التقييم',
+                text: 'هل أنت متأكد من حذف هذا التقييم من المتجر؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`/api/admin/reviews/${reviewId}`, {
+                        method: 'DELETE'
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'bottom-start',
+                            icon: 'success',
+                            title: 'تم حذف التقييم بنجاح!',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        await loadAdminReviews();
+                    } else {
+                        Swal.fire('خطأ', data.error || 'تعذر حذف التقييم', 'error');
                     }
                 } catch (err) {
                     console.error(err);

@@ -628,6 +628,181 @@ def delete_admin_category(cat_id):
     conn.close()
     return jsonify({'success': True, 'message': 'تم حذف القسم بنجاح'})
 
+# ----------------- PUBLIC SETTINGS, DISCOUNTS & REVIEWS -----------------
+
+@app.route('/api/settings', methods=['GET'])
+def get_public_settings():
+    st = supabase_db.get_store_settings()
+    discounts = supabase_db.get_discounts()
+    active_banner = None
+    for d in discounts:
+        if d.get('is_active', True) and d.get('show_banner', True):
+            max_uses = int(d.get('max_uses', 0))
+            used = int(d.get('used_count', 0))
+            rem = max(0, max_uses - used) if max_uses > 0 else 999
+            if rem > 0:
+                active_banner = {
+                    'code': d.get('code'),
+                    'type': d.get('type', 'percent'),
+                    'value': d.get('value', 20),
+                    'remaining_uses': rem,
+                    'max_uses': max_uses,
+                    'description': d.get('description', '')
+                }
+                break
+
+    wa = st.get('whatsapp_number') or st.get('whatsapp') or '01132647659'
+    ph = st.get('contact_phone') or st.get('phone') or '01132647658'
+    fb = st.get('facebook_url') or st.get('facebook') or 'https://www.facebook.com/share/1KEkt1NZbg/'
+    tt = st.get('tiktok_url') or st.get('tiktok') or 'https://www.tiktok.com/@youssef.shas?_r=1&_t=ZS-9AAMIOqltSL'
+    f_thresh = float(st.get('free_shipping_threshold', 1000))
+    f_active = bool(st.get('free_shipping_active', st.get('free_shipping_enabled', True)))
+    ann_text = st.get('announcement_text') or st.get('free_shipping_text') or 'دار حرير للعبايات الفاخرة • شحن وتوصيل لكافة المحافظات ✨'
+
+    if active_banner:
+        active_banner['discount_display'] = f"{active_banner['value']}%" if active_banner.get('type') == 'percent' else f"{active_banner['value']} ج.م"
+
+    return jsonify({
+        'whatsapp': wa,
+        'whatsapp_number': wa,
+        'phone': ph,
+        'contact_phone': ph,
+        'facebook': fb,
+        'facebook_url': fb,
+        'tiktok': tt,
+        'tiktok_url': tt,
+        'free_shipping_enabled': f_active,
+        'free_shipping_active': f_active,
+        'free_shipping_threshold': f_thresh,
+        'free_shipping_text': ann_text,
+        'announcement_text': ann_text,
+        'active_discount_banner': active_banner
+    })
+
+@app.route('/api/discounts/validate', methods=['POST'])
+def validate_discount():
+    data = request.json or {}
+    code = data.get('code', '')
+    subtotal = float(data.get('subtotal', 0))
+    res = supabase_db.validate_discount_code(code, subtotal)
+    return jsonify(res)
+
+@app.route('/api/reviews', methods=['GET'])
+def get_public_reviews():
+    reviews = supabase_db.get_reviews()
+    return jsonify(reviews)
+
+@app.route('/api/reviews', methods=['POST'])
+def submit_public_review():
+    data = request.json or {}
+    name = html.escape(str(data.get('name', 'عميلة دار حرير')).strip()[:100])
+    comment = html.escape(str(data.get('comment', '')).strip()[:500])
+    city = html.escape(str(data.get('city', 'مصر')).strip()[:50])
+    try:
+        rating = int(data.get('rating', 5))
+        rating = max(1, min(5, rating))
+    except Exception:
+        rating = 5
+
+    if not comment:
+        return jsonify({'error': 'يرجى كتابة رأيك وتقييمك'}), 400
+
+    new_rev = {
+        'id': f"rev_{uuid.uuid4().hex[:6]}",
+        'name': name,
+        'rating': rating,
+        'comment': comment,
+        'city': city,
+        'created_at': datetime.now().strftime('%Y-%m-%d')
+    }
+    supabase_db.add_review(new_rev)
+    return jsonify({'success': True, 'message': 'شكراً لتقييمك الرائع لدار حرير ❤️', 'review': new_rev}), 201
+
+# ----------------- ADMIN SETTINGS & DISCOUNTS -----------------
+
+@app.route('/api/admin/settings', methods=['GET'])
+@admin_required
+def get_admin_settings():
+    st = supabase_db.get_store_settings()
+    discounts = supabase_db.get_discounts()
+    for d in discounts:
+        if 'discount_type' not in d:
+            d['discount_type'] = d.get('type', 'percent')
+        if 'discount_value' not in d:
+            d['discount_value'] = d.get('value', 20)
+    return jsonify({
+        'settings': st,
+        'store_settings': st,
+        'discounts': discounts,
+        'reviews': supabase_db.get_reviews()
+    })
+
+@app.route('/api/admin/settings', methods=['POST'])
+@admin_required
+def update_admin_settings():
+    data = request.json or {}
+    saved = supabase_db.save_store_settings(data)
+    return jsonify({'success': True, 'message': 'تم حفظ إعدادات المتجر بنجاح', 'settings': saved})
+
+@app.route('/api/admin/discounts', methods=['POST'])
+@admin_required
+def save_admin_discount():
+    data = request.json or {}
+    code = str(data.get('code', '')).strip().upper()
+    if not code:
+        return jsonify({'error': 'كود الخصم مطلوب'}), 400
+    try:
+        val = float(data.get('discount_value', data.get('value', 10)))
+        max_uses = int(data.get('max_uses', 20))
+    except Exception:
+        return jsonify({'error': 'القيمة والحد الأقصى يجب أن يكونا أرقاماً'}), 400
+
+    disc_type = data.get('discount_type', data.get('type', 'percent'))
+    discounts = supabase_db.get_discounts()
+    found = False
+    for d in discounts:
+        if d.get('code', '').upper() == code:
+            d['value'] = val
+            d['discount_value'] = val
+            d['type'] = disc_type
+            d['discount_type'] = disc_type
+            d['max_uses'] = max_uses
+            d['is_active'] = bool(data.get('is_active', True))
+            d['show_banner'] = bool(data.get('show_banner', True))
+            d['description'] = data.get('description', f'خصم {val}{"%" if disc_type=="percent" else " ج.م"}')
+            found = True
+            break
+    if not found:
+        discounts.insert(0, {
+            'code': code,
+            'type': disc_type,
+            'discount_type': disc_type,
+            'value': val,
+            'discount_value': val,
+            'max_uses': max_uses,
+            'used_count': 0,
+            'is_active': bool(data.get('is_active', True)),
+            'show_banner': bool(data.get('show_banner', True)),
+            'description': data.get('description', f'خصم {val}{"%" if disc_type=="percent" else " ج.م"}')
+        })
+    supabase_db.save_discounts(discounts)
+    return jsonify({'success': True, 'message': f'تم حفظ كود الخصم {code} بنجاح'})
+
+@app.route('/api/admin/discounts/<string:code>', methods=['DELETE'])
+@admin_required
+def delete_admin_discount(code):
+    code_clean = code.strip().upper()
+    discounts = supabase_db.get_discounts()
+    discounts = [d for d in discounts if d.get('code', '').upper() != code_clean]
+    supabase_db.save_discounts(discounts)
+    return jsonify({'success': True, 'message': 'تم حذف كود الخصم بنجاح'})
+
+@app.route('/api/admin/reviews/<string:rev_id>', methods=['DELETE'])
+@admin_required
+def delete_admin_review(rev_id):
+    supabase_db.delete_review(rev_id)
+    return jsonify({'success': True, 'message': 'تم حذف التقييم بنجاح'})
+
 @app.route('/api/orders', methods=['POST'])
 def create_order():
     client_ip = get_client_ip()
@@ -671,7 +846,7 @@ def create_order():
         phone_clean = '0' + phone_clean[2:]
     
     if not re.match(r'^01[0125][0-9]{8}$', phone_clean):
-        return jsonify({'error': 'رقم الهاتف غير صحيح، يرجى كتابة رقم محمول مصري صحيح مكون من 11 رقماً (مثال: 01156989550)'}), 400
+        return jsonify({'error': 'رقم الهاتف غير صحيح، يرجى كتابة رقم محمول مصري صحيح مكون من 11 رقماً (مثال: 01132647659)'}), 400
 
     # 4. Items & Price Tampering Verification (Verify against real DB products)
     if not isinstance(items, list) or len(items) == 0:
@@ -726,10 +901,19 @@ def create_order():
             'image': prod['image']
         })
 
-    # Shipping is not hardcoded (+ مصاريف الشحن upon delivery)
-    calculated_shipping = 0.0
+    discount_code = str(data.get('discount_code') or '').strip().upper()
     calculated_discount = 0.0
-    final_total = round(calculated_subtotal - calculated_discount, 2)
+    if discount_code:
+        disc_val = supabase_db.validate_discount_code(discount_code, calculated_subtotal)
+        if disc_val.get('valid'):
+            calculated_discount = disc_val.get('discount_amount', 0.0)
+            supabase_db.record_discount_usage(discount_code)
+            clean_notes = f"كود خصم: {discount_code} (خصم {calculated_discount} ج.م) | {clean_notes}".strip(' |')
+
+    st_settings = supabase_db.get_store_settings()
+    is_free_shipping = bool(st_settings.get('free_shipping_enabled', True)) and (calculated_subtotal >= float(st_settings.get('free_shipping_threshold', 1000)))
+    calculated_shipping = 0.0
+    final_total = max(0.0, round(calculated_subtotal - calculated_discount, 2))
 
     order_num = f"HAREER-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     items_json = json.dumps(verified_items, ensure_ascii=False)
@@ -784,6 +968,9 @@ def create_order():
         'order_id': order_id,
         'order_number': order_num,
         'subtotal': calculated_subtotal,
+        'discount': calculated_discount,
+        'discount_code': discount_code,
+        'is_free_shipping': is_free_shipping,
         'shipping': calculated_shipping,
         'total_amount': final_total,
         'message': 'تم استلام طلبك بنجاح وسيتواصل معك فريق خدمة عملاء دار حرير للعبايات قريباً لتأكيد الشحن!'
