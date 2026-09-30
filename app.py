@@ -507,6 +507,34 @@ def admin():
 
 # ----------------- PUBLIC API ENDPOINTS -----------------
 
+def _parse_sqlite_product_metadata(p, is_admin=False):
+    desc = p.get('description') or ''
+    merchant = p.get('merchant_name') or ''
+    m_merch = re.search(r'<!--merchant:(.*?)-->', desc)
+    if m_merch:
+        merchant = m_merch.group(1).strip()
+    p['merchant_name'] = merchant
+
+    images = []
+    m_imgs = re.search(r'<!--images:(.*?)-->', desc)
+    if m_imgs:
+        try:
+            images = json.loads(m_imgs.group(1))
+        except Exception:
+            pass
+    if not images and p.get('image'):
+        images = [p['image']]
+    elif p.get('image') and p['image'] not in images:
+        images.insert(0, p['image'])
+    p['images'] = images
+
+    clean_desc = re.sub(r'<!--images:.*?-->', '', desc).strip()
+    clean_desc = re.sub(r'<!--merchant:.*?-->', '', clean_desc).strip()
+    if not is_admin:
+        p.pop('cost_price', None)
+    p['description'] = clean_desc
+    return p
+
 @app.route('/api/products', methods=['GET'])
 def get_products():
     category = request.args.get('category')
@@ -547,12 +575,7 @@ def get_products():
 
     cursor.execute(query, params)
     rows = cursor.fetchall()
-    products = []
-    for row in rows:
-        p = dict(row)
-        if not is_admin:
-            p.pop('cost_price', None)
-        products.append(p)
+    products = [_parse_sqlite_product_metadata(dict(row), is_admin=is_admin) for row in rows]
     conn.close()
 
     return jsonify(products)
@@ -573,10 +596,7 @@ def get_product(product_id):
     conn.close()
 
     if row:
-        p = dict(row)
-        if not is_admin:
-            p.pop('cost_price', None)
-        return jsonify(p)
+        return jsonify(_parse_sqlite_product_metadata(dict(row), is_admin=is_admin))
     return jsonify({'error': 'Product not found'}), 404
 
 @app.route('/api/categories', methods=['GET'])
@@ -1055,7 +1075,7 @@ def get_admin_products():
     rows = cursor.fetchall()
     products = []
     for row in rows:
-        p = dict(row)
+        p = _parse_sqlite_product_metadata(dict(row), is_admin=True)
         cost = float(p.get('cost_price') or 0.0)
         price = float(p.get('price') or 0.0)
         profit = round(price - cost, 2)
@@ -1096,29 +1116,48 @@ def update_product_cost(product_id):
 @app.route('/api/admin/upload-image', methods=['POST'])
 @admin_required
 def upload_image():
-    if 'image' not in request.files:
+    files_list = []
+    if 'images' in request.files:
+        files_list = request.files.getlist('images')
+    elif 'image' in request.files:
+        files_list = request.files.getlist('image')
+
+    if not files_list:
         return jsonify({'error': 'لم يتم اختيار أي ملف صورة'}), 400
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'اسم الملف فارغ'}), 400
-    if file and allowed_file(file.filename):
-        if supabase_db.is_supabase_enabled():
-            try:
-                public_url, unique_name = supabase_db.upload_image(file, file.filename)
-                return jsonify({'success': True, 'url': public_url, 'filename': unique_name})
-            except Exception as e:
-                print("Supabase storage upload error:", e)
-                return jsonify({'error': f'فشل رفع الصورة إلى التخزين السحابي: {str(e)}'}), 500
-        try:
-            ext = file.filename.rsplit('.', 1)[1].lower()
-            unique_name = f"abaya_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}.{ext}"
-            filepath = os.path.join(UPLOAD_FOLDER, unique_name)
-            file.save(filepath)
-            url = f"/static/uploads/products/{unique_name}"
-            return jsonify({'success': True, 'url': url, 'filename': unique_name})
-        except Exception as e:
-            return jsonify({'error': f'تعذر حفظ الصورة: {str(e)}'}), 500
-    return jsonify({'error': 'صيغة الصورة غير مدعومة. يرجى اختيار صورة بصيغة JPG أو PNG أو WEBP'}), 400
+
+    results = []
+    for file in files_list:
+        if not file or file.filename == '':
+            continue
+        if allowed_file(file.filename):
+            if supabase_db.is_supabase_enabled():
+                try:
+                    public_url, unique_name = supabase_db.upload_image(file, file.filename)
+                    results.append({'url': public_url, 'filename': unique_name})
+                except Exception as e:
+                    print("Supabase storage upload error:", e)
+                    return jsonify({'error': f'فشل رفع الصورة إلى التخزين السحابي: {str(e)}'}), 500
+            else:
+                try:
+                    ext = file.filename.rsplit('.', 1)[1].lower()
+                    unique_name = f"abaya_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}.{ext}"
+                    filepath = os.path.join(UPLOAD_FOLDER, unique_name)
+                    file.save(filepath)
+                    url = f"/static/uploads/products/{unique_name}"
+                    results.append({'url': url, 'filename': unique_name})
+                except Exception as e:
+                    return jsonify({'error': f'تعذر حفظ الصورة: {str(e)}'}), 500
+
+    if not results:
+        return jsonify({'error': 'صيغة الصورة غير مدعومة. يرجى اختيار صورة بصيغة JPG أو PNG أو WEBP'}), 400
+
+    return jsonify({
+        'success': True,
+        'url': results[0]['url'],
+        'filename': results[0]['filename'],
+        'urls': [r['url'] for r in results],
+        'items': results
+    })
 
 @app.route('/api/admin/products', methods=['POST'])
 @admin_required
@@ -1128,9 +1167,10 @@ def add_product():
     price = data.get('price')
     category = data.get('category')
     image = data.get('image')
+    images_raw = data.get('images') or []
     cost_price = data.get('cost_price')
 
-    if not name or not price or not category or not image:
+    if not name or not price or not category or (not image and not images_raw):
         return jsonify({'error': 'الاسم، السعر، القسم، وصورة العباية حقول مطلوبة'}), 400
 
     try:
@@ -1142,9 +1182,20 @@ def add_product():
     if price_val <= 0 or cost_val < 0:
         return jsonify({'error': 'الأسعار يجب أن تكون أرقاماً موجبة'}), 400
 
-    image_str = str(image).strip()
-    if not (image_str.startswith('http://') or image_str.startswith('https://') or image_str.startswith('/static/')):
+    images_list = []
+    if isinstance(images_raw, list):
+        images_list = [str(u).strip() for u in images_raw if str(u).strip().startswith(('http://', 'https://', '/static/'))]
+    elif isinstance(images_raw, str) and images_raw.strip():
+        images_list = [u.strip() for u in images_raw.split(',') if u.strip().startswith(('http://', 'https://', '/static/'))]
+
+    image_str = str(image).strip() if image else ''
+    if image_str and image_str not in images_list:
+        images_list.insert(0, image_str)
+
+    if not images_list:
         return jsonify({'error': 'صورة العباية غير صالحة. يرجى رفع صورة من جهازك'}), 400
+
+    primary_image = images_list[0]
 
     if supabase_db.is_supabase_enabled():
         new_prod = {
@@ -1152,7 +1203,8 @@ def add_product():
             'category': html.escape(str(category).strip()[:50]),
             'price': price_val,
             'old_price': float(data.get('old_price', 0)) if data.get('old_price') else None,
-            'image': image_str[:500],
+            'image': primary_image[:500],
+            'images': images_list,
             'description': html.escape(str(data.get('description', '')).strip()[:1000]),
             'sizes': html.escape(str(data.get('sizes', '52,54,56,58,60')).strip()[:100]),
             'colors': html.escape(str(data.get('colors', 'أسود ملكي,كحلي,بترولي')).strip()[:100]),
@@ -1167,6 +1219,13 @@ def add_product():
 
     conn = get_db()
     cursor = conn.cursor()
+    desc_val = html.escape(str(data.get('description', '')).strip()[:1000])
+    if len(images_list) > 1:
+        desc_val = f"{desc_val}\n<!--images:{json.dumps(images_list, ensure_ascii=False)}-->".strip()
+    merchant = html.escape(str(data.get('merchant_name', '')).strip()[:100])
+    if merchant:
+        desc_val = f"{desc_val}\n<!--merchant:{merchant}-->".strip()
+
     cursor.execute('''
     INSERT INTO products (name, category, price, old_price, image, description, sizes, colors, in_stock, featured, badge, cost_price)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -1175,8 +1234,8 @@ def add_product():
         html.escape(str(category).strip()[:50]),
         price_val,
         float(data.get('old_price', 0)) if data.get('old_price') else None,
-        image_str[:500],
-        html.escape(str(data.get('description', '')).strip()[:1000]),
+        primary_image[:500],
+        desc_val,
         html.escape(str(data.get('sizes', '52,54,56,58,60')).strip()[:100]),
         html.escape(str(data.get('colors', 'أسود ملكي,كحلي,بترولي')).strip()[:100]),
         int(data.get('in_stock', 1)),

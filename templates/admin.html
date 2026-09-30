@@ -445,15 +445,18 @@
 
                         <div class="sm:col-span-2">
                             <div class="flex items-center justify-between mb-1.5">
-                                <label class="block text-xs font-semibold text-slate-700">صورة العباية (من الموبايل أو الكمبيوتر) *</label>
+                                <label class="block text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-images text-amber-600"></i>
+                                    <span>صور العباية (يمكنك اختيار ورفع أكثر من صورة للموديل) *</span>
+                                </label>
                                 <button type="button" onclick="toggleImageUrlMode()" id="btnToggleUrlMode" class="text-[11px] text-amber-600 hover:text-amber-700 font-semibold underline">
-                                    أو إدخال رابط صورة إنترنت
+                                    أو إدخال روابط صور إنترنت
                                 </button>
                             </div>
 
                             <!-- Direct File Upload Box (Default) -->
                             <div id="imageUploadBox" class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-2xl p-5 text-center bg-slate-50 transition cursor-pointer relative" onclick="triggerFileInput()">
-                                <input type="file" id="newProdFileInput" accept="image/*" class="hidden" onchange="handleImageFileSelected(event)">
+                                <input type="file" id="newProdFileInput" accept="image/*" multiple class="hidden" onchange="handleImageFilesSelected(event)">
                                 <input type="hidden" id="newProdImage" required>
 
                                 <!-- Placeholder state -->
@@ -462,37 +465,44 @@
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
                                     <div>
-                                        <span class="text-xs font-bold text-slate-800 block">اضغط هنا لاختيار صورة من جهازك / الكاميرا</span>
-                                        <span class="text-[11px] text-slate-500">يدعم صيغ JPG، PNG، WEBP مباشرة من الاستوديو أو الكاميرا</span>
+                                        <span class="text-xs font-bold text-slate-800 block">اضغط هنا لاختيار صورة أو عدة صور من جهازك / الكاميرا</span>
+                                        <span class="text-[11px] text-slate-500">يمكنك تحديد عدة صور معاً (للعباية من الأمام، الخلف، وتفاصيل التطريز)</span>
                                     </div>
                                 </div>
 
                                 <!-- Loading state -->
                                 <div id="uploadLoading" class="hidden py-4 text-center space-y-2">
                                     <i class="fa-solid fa-spinner fa-spin text-2xl text-amber-600"></i>
-                                    <span class="text-xs font-bold text-slate-700 block">جاري رفع وحفظ صورة العباية...</span>
-                                </div>
-
-                                <!-- Preview state -->
-                                <div id="uploadPreview" class="hidden flex items-center justify-center gap-4">
-                                    <img id="previewImgElement" src="" class="w-20 h-24 object-cover object-top rounded-xl border-2 border-emerald-500 shadow-md">
-                                    <div class="text-right">
-                                        <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                                            <i class="fa-solid fa-circle-check"></i>
-                                            <span>تم اختيار ورفع الصورة بنجاح</span>
-                                        </span>
-                                        <p id="previewImgName" class="text-[11px] text-slate-500 mt-1 max-w-[200px] truncate"></p>
-                                        <button type="button" onclick="event.stopPropagation(); triggerFileInput();" class="text-[11px] font-bold text-amber-600 hover:text-amber-700 underline mt-1 block">
-                                            تغيير الصورة
-                                        </button>
-                                    </div>
+                                    <span class="text-xs font-bold text-slate-700 block">جاري رفع وحفظ الصور سحابياً...</span>
                                 </div>
                             </div>
 
+                            <!-- Multi-Image Gallery Preview -->
+                            <div id="uploadGalleryContainer" class="hidden mt-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                                <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-slate-800">صور الموديل المرفوعة:</span>
+                                        <span id="uploadedImagesCountBadge" class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2 py-0.5 rounded-full">0 صور</span>
+                                    </div>
+                                    <button type="button" onclick="triggerFileInput()" class="text-xs font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-plus text-[10px]"></i>
+                                        <span>إضافة صور أخرى للموديل</span>
+                                    </button>
+                                </div>
+                                <div id="uploadedImagesGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3"></div>
+                                <p class="text-[10px] text-slate-400 mt-2 text-right">💡 أول صورة تحمل علامة ⭐ هي صورة الغلاف الرئيسية التي تظهر للعملاء في واجهة المتجر، ويمكنك الضغط على "تعيين كرئيسية" في أي صورة لتحديدها كغلاف.</p>
+                            </div>
+
                             <!-- Manual URL input (fallback) -->
-                            <div id="imageUrlBox" class="hidden mt-2">
-                                <input type="url" id="newProdImageUrlInput" placeholder="https://images.unsplash.com/..." 
-                                       class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500 font-mono" dir="ltr" oninput="handleManualUrlInput(this.value)">
+                            <div id="imageUrlBox" class="hidden mt-2 space-y-2">
+                                <div class="flex gap-2">
+                                    <input type="url" id="newProdImageUrlInput" placeholder="https://images.unsplash.com/..." 
+                                           class="flex-1 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-500 font-mono" dir="ltr">
+                                    <button type="button" onclick="addManualImageUrl()" class="bg-slate-900 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                                        إضافة الصورة
+                                    </button>
+                                </div>
+                                <span class="text-[10px] text-slate-400 block">يمكنك لصق رابط ثم الضغط على "إضافة الصورة"، وتكرار العملية لإضافة أكثر من صورة للموديل.</span>
                             </div>
                         </div>
 
@@ -1239,7 +1249,10 @@
             tbody.innerHTML = adminProducts.map(p => `
                 <tr class="hover:bg-slate-50 transition-colors">
                     <td class="py-2 px-4">
-                        <img src="${p.image}" class="w-10 h-12 object-cover object-top rounded-lg border">
+                        <div class="relative inline-block">
+                            <img src="${p.image}" class="w-10 h-12 object-cover object-top rounded-lg border shadow-sm">
+                            ${p.images && p.images.length > 1 ? `<span class="absolute -bottom-1 -right-1 bg-black/85 text-white text-[9px] px-1.5 py-0.2 rounded-full font-mono font-bold shadow flex items-center gap-0.5" title="${p.images.length} صور للموديل"><i class="fa-solid fa-images text-[8px] text-amber-400"></i> ${p.images.length}</span>` : ''}
+                        </div>
                     </td>
                     <td class="py-2 px-4 font-bold text-slate-900">${p.name}</td>
                     <td class="py-2 px-4 text-slate-600">${p.category}</td>
@@ -1349,6 +1362,8 @@
             document.getElementById('newProdFileInput').click();
         }
 
+        let uploadedProductImages = [];
+
         function toggleImageUrlMode() {
             const uploadBox = document.getElementById('imageUploadBox');
             const urlBox = document.getElementById('imageUrlBox');
@@ -1357,35 +1372,47 @@
             if (urlBox.classList.contains('hidden')) {
                 urlBox.classList.remove('hidden');
                 uploadBox.classList.add('hidden');
-                btn.innerText = 'أو اختيار صورة من الجهاز';
+                btn.innerText = 'أو اختيار صور من الجهاز';
             } else {
                 urlBox.classList.add('hidden');
                 uploadBox.classList.remove('hidden');
-                btn.innerText = 'أو إدخال رابط صورة إنترنت';
+                btn.innerText = 'أو إدخال روابط صور إنترنت';
             }
         }
 
-        function handleManualUrlInput(val) {
-            document.getElementById('newProdImage').value = val.trim();
+        function triggerFileInput() {
+            document.getElementById('newProdFileInput').click();
         }
 
-        async function handleImageFileSelected(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        function addManualImageUrl() {
+            const input = document.getElementById('newProdImageUrlInput');
+            const url = input.value.trim();
+            if (!url) return;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                Swal.fire('تنبيه', 'يرجى إدخال رابط صورة صحيح يبدأ بـ http:// أو https://', 'warning');
+                return;
+            }
+            if (!uploadedProductImages.includes(url)) {
+                uploadedProductImages.push(url);
+            }
+            input.value = '';
+            renderUploadedImagesPreview();
+        }
+
+        async function handleImageFilesSelected(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
 
             const placeholder = document.getElementById('uploadPlaceholder');
             const loading = document.getElementById('uploadLoading');
-            const preview = document.getElementById('uploadPreview');
-            const imgEl = document.getElementById('previewImgElement');
-            const imgNameEl = document.getElementById('previewImgName');
-            const hiddenInput = document.getElementById('newProdImage');
 
             placeholder.classList.add('hidden');
-            preview.classList.add('hidden');
             loading.classList.remove('hidden');
 
             const formData = new FormData();
-            formData.append('image', file);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
 
             try {
                 const res = await fetch('/api/admin/upload-image', {
@@ -1394,38 +1421,100 @@
                 });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    hiddenInput.value = data.url;
-                    imgEl.src = data.url;
-                    imgNameEl.innerText = file.name;
-                    loading.classList.add('hidden');
-                    preview.classList.remove('hidden');
+                    const newUrls = data.urls || (data.url ? [data.url] : []);
+                    newUrls.forEach(u => {
+                        if (!uploadedProductImages.includes(u)) {
+                            uploadedProductImages.push(u);
+                        }
+                    });
+
+                    renderUploadedImagesPreview();
+
                     Swal.fire({
                         toast: true,
                         position: 'bottom-start',
                         icon: 'success',
-                        title: 'تم رفع صورة العباية بنجاح!',
-                        timer: 1500,
+                        title: `تم رفع وحفظ ${newUrls.length} صور بنجاح!`,
+                        timer: 1800,
                         showConfirmButton: false
                     });
                 } else {
-                    loading.classList.add('hidden');
-                    placeholder.classList.remove('hidden');
-                    Swal.fire('خطأ في الرفع', data.error || 'فشل في رفع الصورة', 'error');
+                    Swal.fire('خطأ في الرفع', data.error || 'فشل في رفع الصور', 'error');
                 }
             } catch (err) {
                 console.error(err);
+                Swal.fire('خطأ', 'حدث خطأ في الاتصال أثناء رفع الصور', 'error');
+            } finally {
                 loading.classList.add('hidden');
-                placeholder.classList.remove('hidden');
-                Swal.fire('خطأ', 'حدث خطأ في الاتصال أثناء رفع الصورة', 'error');
+                if (uploadedProductImages.length === 0) {
+                    placeholder.classList.remove('hidden');
+                }
+                event.target.value = '';
             }
+        }
+
+        function renderUploadedImagesPreview() {
+            const galleryContainer = document.getElementById('uploadGalleryContainer');
+            const grid = document.getElementById('uploadedImagesGrid');
+            const countBadge = document.getElementById('uploadedImagesCountBadge');
+            const placeholder = document.getElementById('uploadPlaceholder');
+            const hiddenInput = document.getElementById('newProdImage');
+
+            if (!uploadedProductImages || uploadedProductImages.length === 0) {
+                galleryContainer.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                hiddenInput.value = '';
+                return;
+            }
+
+            placeholder.classList.add('hidden');
+            galleryContainer.classList.remove('hidden');
+            countBadge.innerText = `${uploadedProductImages.length} صور`;
+            hiddenInput.value = uploadedProductImages[0] || '';
+
+            grid.innerHTML = uploadedProductImages.map((url, idx) => {
+                const isPrimary = idx === 0;
+                return `
+                <div class="relative bg-white rounded-xl overflow-hidden border ${isPrimary ? 'border-amber-500 ring-2 ring-amber-400/50' : 'border-slate-200'} shadow-sm group">
+                    <img src="${url}" class="w-full h-28 object-cover object-top">
+                    
+                    <!-- Primary badge or action -->
+                    ${isPrimary ? `
+                        <span class="absolute top-1.5 right-1.5 bg-amber-500 text-black text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                            ⭐ رئيسية
+                        </span>
+                    ` : `
+                        <button type="button" onclick="makeImagePrimary(${idx})" class="absolute bottom-1.5 inset-x-1.5 bg-black/80 hover:bg-amber-600 text-white text-[9px] font-bold py-1 rounded transition">
+                            تعيين كرئيسية
+                        </button>
+                    `}
+
+                    <!-- Remove image button -->
+                    <button type="button" onclick="removeUploadedImage(${idx})" class="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-rose-600/90 hover:bg-rose-700 text-white flex items-center justify-center text-[10px] shadow transition" title="حذف الصورة">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function removeUploadedImage(idx) {
+            uploadedProductImages.splice(idx, 1);
+            renderUploadedImagesPreview();
+        }
+
+        function makeImagePrimary(idx) {
+            if (idx <= 0 || idx >= uploadedProductImages.length) return;
+            const [selected] = uploadedProductImages.splice(idx, 1);
+            uploadedProductImages.unshift(selected);
+            renderUploadedImagesPreview();
         }
 
         async function submitNewProduct(e) {
             e.preventDefault();
 
-            const imageVal = document.getElementById('newProdImage').value.trim();
-            if (!imageVal) {
-                Swal.fire('تنبيه', 'يرجى اختيار صورة للعباية من جهازك أولاً', 'warning');
+            if (!uploadedProductImages || uploadedProductImages.length === 0) {
+                Swal.fire('تنبيه', 'يرجى اختيار صورة واحدة على الأقل للعباية من جهازك أولاً', 'warning');
                 return;
             }
 
@@ -1440,7 +1529,8 @@
                 price: parseFloat(document.getElementById('newProdPrice').value),
                 old_price: document.getElementById('newProdOldPrice').value ? parseFloat(document.getElementById('newProdOldPrice').value) : null,
                 badge: document.getElementById('newProdBadge').value.trim(),
-                image: imageVal,
+                image: uploadedProductImages[0],
+                images: uploadedProductImages,
                 sizes: document.getElementById('newProdSizes').value.trim(),
                 colors: document.getElementById('newProdColors').value.trim(),
                 description: document.getElementById('newProdDescription').value.trim(),
@@ -1464,8 +1554,9 @@
                     document.getElementById('addProductForm').reset();
                     if (document.getElementById('newProdMerchant')) document.getElementById('newProdMerchant').value = '';
                     document.getElementById('newProdImage').value = '';
+                    uploadedProductImages = [];
+                    renderUploadedImagesPreview();
                     document.getElementById('uploadPlaceholder').classList.remove('hidden');
-                    document.getElementById('uploadPreview').classList.add('hidden');
                     document.getElementById('uploadLoading').classList.add('hidden');
                     document.getElementById('newProdCalcProfit').innerText = '0 ج.م';
                     document.getElementById('newProdCalcYoussef').innerText = '0 ج.م';

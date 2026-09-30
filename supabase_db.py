@@ -43,8 +43,37 @@ def delete_category(category_id):
     return True
 
 # ----------------- PRODUCTS -----------------
-def get_products(category=None, search=None, sort_by='newest', featured_only=None, is_admin=False):
+def _parse_product_metadata(p, is_admin=False):
     import re
+    desc = p.get('description') or ''
+    
+    merchant = p.get('merchant_name') or ''
+    m_merch = re.search(r'<!--merchant:(.*?)-->', desc)
+    if m_merch:
+        merchant = m_merch.group(1).strip()
+    p['merchant_name'] = merchant
+
+    images = []
+    m_imgs = re.search(r'<!--images:(.*?)-->', desc)
+    if m_imgs:
+        try:
+            images = json.loads(m_imgs.group(1))
+        except Exception:
+            pass
+    if not images and p.get('image'):
+        images = [p['image']]
+    elif p.get('image') and p['image'] not in images:
+        images.insert(0, p['image'])
+    p['images'] = images
+
+    clean_desc = re.sub(r'<!--images:.*?-->', '', desc).strip()
+    clean_desc = re.sub(r'<!--merchant:.*?-->', '', clean_desc).strip()
+    if not is_admin:
+        p.pop('cost_price', None)
+    p['description'] = clean_desc
+    return p
+
+def get_products(category=None, search=None, sort_by='newest', featured_only=None, is_admin=False):
     client = get_client()
     query = client.table('products').select('*').eq('in_stock', 1)
     
@@ -65,35 +94,38 @@ def get_products(category=None, search=None, sort_by='newest', featured_only=Non
         query = query.order('id', desc=True)
 
     rows = query.execute().data or []
-    products = []
-    for r in rows:
-        p = dict(r)
-        if not is_admin:
-            p.pop('cost_price', None)
-            if p.get('description'):
-                p['description'] = re.sub(r'<!--merchant:.*?-->', '', p['description']).strip()
-        products.append(p)
-    return products
+    return [_parse_product_metadata(dict(r), is_admin=is_admin) for r in rows]
 
 def get_product(product_id, is_admin=False):
-    import re
     client = get_client()
     res = client.table('products').select('*').eq('id', product_id).execute()
     if res.data:
-        p = dict(res.data[0])
-        if not is_admin:
-            p.pop('cost_price', None)
-            if p.get('description'):
-                p['description'] = re.sub(r'<!--merchant:.*?-->', '', p['description']).strip()
-        return p
+        return _parse_product_metadata(dict(res.data[0]), is_admin=is_admin)
     return None
 
 def add_product(data):
+    import re
     client = get_client()
     merchant = data.pop('merchant_name', None) or data.pop('merchant', None)
+    images = data.pop('images', None) or []
+    if isinstance(images, str):
+        try:
+            images = json.loads(images)
+        except Exception:
+            images = [images] if images else []
+
+    if images and not data.get('image'):
+        data['image'] = images[0]
+    elif data.get('image') and data['image'] not in images:
+        images.insert(0, data['image'])
+
+    desc = data.get('description') or ''
+    if images and len(images) > 1:
+        desc = f"{desc}\n<!--images:{json.dumps(images, ensure_ascii=False)}-->".strip()
     if merchant:
-        desc = data.get('description') or ''
-        data['description'] = f"{desc}\n<!--merchant:{merchant}-->".strip()
+        desc = f"{desc}\n<!--merchant:{merchant}-->".strip()
+    data['description'] = desc
+
     res = client.table('products').insert(data).execute()
     return res.data[0] if res.data else {}
 
@@ -108,12 +140,11 @@ def update_product_cost(product_id, cost_price):
     return True
 
 def get_admin_products():
-    import re
     client = get_client()
     rows = client.table('products').select('*').order('id', desc=False).execute().data or []
     products = []
     for row in rows:
-        p = dict(row)
+        p = _parse_product_metadata(dict(row), is_admin=True)
         cost = float(p.get('cost_price') or 0.0)
         price = float(p.get('price') or 0.0)
         profit = round(price - cost, 2)
@@ -124,15 +155,6 @@ def get_admin_products():
         p['partner_share'] = share
         p['youssef_share'] = share
         p['bibo_share'] = share
-
-        merchant = p.get('merchant_name') or ''
-        if not merchant and p.get('description'):
-            m = re.search(r'<!--merchant:(.*?)-->', p['description'])
-            if m:
-                merchant = m.group(1).strip()
-                p['description'] = re.sub(r'<!--merchant:.*?-->', '', p['description']).strip()
-        p['merchant_name'] = merchant
-
         products.append(p)
     return products
 
